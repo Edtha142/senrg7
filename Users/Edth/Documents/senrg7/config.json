@@ -1,0 +1,54 @@
+{
+  "sistema": {
+    "nombre": "SENRG7",
+    "version": "1.0.0",
+    "descripcion": "Sistema IoT de Monitoreo de Energía para Máquinas Industriales"
+  },
+  "auth": {
+    "usuario": "admin",
+    "password": "senrg7admin",
+    "duracion_sesion_horas": 8
+  },
+  "red": {
+    "mqtt_broker": "localhost",
+    "mqtt_puerto": 1883,
+    "mqtt_usuario": "",
+    "mqtt_password": "",
+    "api_host": "0.0.0.0",
+    "api_puerto": 8000
+  },
+  "base_datos": {
+    "ruta": "senrg7.db"
+  },
+  "maquinas": [
+    {
+      "id": 1,
+      "nombre": "Bordadora 1",
+      "descripcion": "Máquina bordadora principal — línea A",
+      "activa": true,
+      "factor_calibracion": 30.0
+    }
+  ],
+  "umbrales": {
+    "apagada": 0.5,
+    "encendida": 2.0,
+    "bordando": 20.0,
+    "sobrecarga": 20.0
+  },
+  "medicion": {
+    "intervalo_segundos": 1,
+    "n_muestras_rms": 100,
+    "historial_minutos": 60
+  },
+  "deteccion_eventos": {
+    "rotura_hilo_caida_minima": 3.0,
+    "rotura_hilo_ventana_segundos": 3
+  },
+  "alertas": {
+    "telegram_token": "",
+    "telegram_chat_id": "",
+    "alertar_rotura_hilo": true,
+    "alertar_sobrecarga": true,
+    "alertar_desconexion": true
+  }
+}

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENRG7 — Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0e1a;
+      --bg2:         #0d1120;
+      --card:        #111827;
+      --card-brd:    #1e2a45;
+      --accent:      #00c896;
+      --accent2:     #4fc3f7;
+      --text:        #e2e8f0;
+      --text-muted:  #64748b;
+      --navbar-h:    56px;
+
+      --col-apagada:    #475569;
+      --col-encendida:  #f59e0b;
+      --col-bordando:   #00c896;
+      --col-sobrecarga: #ef4444;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--navbar-h);
+      background: rgba(17,24,39,.95);
+      border-bottom: 1px solid var(--card-brd);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      z-index: 100;
+    }
+    .navbar-brand {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      background: linear-gradient(90deg, #00c896, #4fc3f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      flex-shrink: 0;
+    }
+    .navbar-sep { flex: 1; }
+    .ws-indicator {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .78rem;
+      color: var(--text-muted);
+    }
+    .ws-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background .4s;
+    }
+    .ws-dot.conectado { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .ws-dot.error     { background: var(--col-sobrecarga); }
+
+    .btn-nav {
+      background: transparent;
+      border: 1px solid var(--card-brd);
+      border-radius: 8px;
+      color: var(--text-muted);
+      padding: .35rem .75rem;
+      font-size: .82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      transition: color .2s, border-color .2s;
+      text-decoration: none;
+    }
+    .btn-nav:hover { color: var(--text); border-color: var(--accent); }
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .main {
+      margin-top: var(--navbar-h);
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+      min-height: calc(100vh - var(--navbar-h));
+    }
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+    }
+
+    /* ── SECCIÓN IZQUIERDA: MÁQUINAS ── */
+    .seccion-titulo {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .seccion-titulo i { font-size: .9rem; }
+
+    .maquinas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── TARJETA DE MÁQUINA ── */
+    .maquina-card {
+      background: var(--card);
+      border: 1px solid var(--card-brd);
+      border-radius: 14px;
+      padding: 1.25rem;
+      transition: border-color .3s, box-shadow .3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .maquina-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--estado-color, var(--card-brd));
+      transition: background .4s;
+    }
+    .maquina-card:hover {
+      border-color: rgba(255,255,255,.12);
+      box-shadow: 0 8px 30px rgba(0,0,0,.3);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .card-nombre { font-weight: 700; font-size: .95rem; }
+    .card-desc   { font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
+
+    .badge-estado {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: .3rem .7rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+      margin-left: .5rem;
+    }
+    .badge-APAGADA    { background: rgba(71,85,105,.3);  color: #94a3b8; border: 1px solid rgba(71,85,105,.5); }
+    .badge-ENCENDIDA  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+    .badge-BORDANDO   { background: rgba(0,200,150,.15);  color: #00c896; border: 1px solid rgba(0,200,150,.3); }
+    .badge-SOBRECARGA { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+    .badge-SIN_DATOS  { background: rgba(100,116,139,.15); color: #64748b; border: 1px solid rgba(100,116,139,.3); }
+
+    /* Corriente grande */
+    .corriente-valor {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.02em;
+      color: var(--estado-color, var(--text));
+      transition: color .4s;
+    }
+    .corriente-unidad {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-left: .2rem;
+    }
+
+    /* Mini gráfico de corriente */
+    .grafico-wrap {
+      margin-top: 1rem;
+      height: 64px;
+    }
+    .grafico-wrap canvas { width: 100% !important; }
+
+    /* Fila de stats */
+    .card-stats {
+      display: flex;
+      gap: 1rem;
+      margin-top: .85rem;
+      padding-top: .85rem;
+      border-top: 1px solid var(--card-brd);
+    }
+    .stat {
+      flex: 1;
+      text-align: center;
+    }
+    .stat-valor { font-size: .95rem; font-weight: 700; }
+    .stat-label { font-size: .68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-top: .15rem; }
+    .stat-roturas .stat-valor { color: #f87171; }
+
+    /* Indicador de última actualización */
+    .ultima-act {
+      font-size: .7rem;
+      color: var(--text-muted);
+      margin-top: .6rem;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    /* ── PANEL DERECHO: EVENTOS ── */
+    .panel-eventos {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .eventos-lista {
+      background: var(--card);
+      border: 1px solid var(--card-brd);
+      border-radius: 14px;
+      padding: 1.25rem;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .eventos-scroll {
+      overflow-y: auto;
+      flex: 1;
+      max-height: calc(100vh - 200px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--card-brd) transparent;
+    }
+
+    .evento-item {
+      display: flex;
+      gap: .75rem;
+      padding: .65rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      animation: fadeIn .3s ease;
+    }
+    .evento-item:last-child { border-bottom: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .evento-icono {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      flex-shrink: 0;
+    }
+    .icono-ROTURA_HILO   { background: rgba(239,68,68,.2);  color: #f87171; }
+    .icono-SOBRECARGA    { background: rgba(239,68,68,.2);  color: #f87171; }
+    .icono-CAMBIO_ESTADO { background: rgba(79,195,247,.15); color: #4fc3f7; }
+    .icono-INICIO        { background: rgba(0,200,150,.15);  color: #00c896; }
+    .icono-PAUSA         { background: rgba(245,158,11,.15); color: #fbbf24; }
+    .icono-default       { background: rgba(100,116,139,.15); color: #94a3b8; }
+
+    .evento-body { flex: 1; min-width: 0; }
+    .evento-tipo {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .evento-desc {
+      font-size: .72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: .1rem;
+    }
+    .evento-meta {
+      font-size: .68rem;
+      color: var(--text-muted);
+      margin-top: .2rem;
+    }
+
+    /* ── CARD RESUMEN DÍA ── */
+    .card-resumen {
+      background: var(--card);
+      border: 1px solid var(--card-brd);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .resumen-fila {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: .6rem;
+    }
+    .resumen-fila:last-child { margin-bottom: 0; }
+    .resumen-label { font-size: .75rem; color: var(--text-muted); flex: 1; }
+    .resumen-barra-wrap {
+      flex: 2;
+      background: rgba(255,255,255,.06);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .resumen-barra {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .8s ease;
+    }
+    .resumen-pct { font-size: .75rem; font-weight: 700; min-width: 36px; text-align: right; }
+
+    /* ── SKELETON / ESTADO VACÍO ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--card-brd) 25%, rgba(255,255,255,.05) 50%, var(--card-brd) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .sin-datos {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+    }
+    .sin-datos i { font-size: 2rem; display: block; margin-bottom: .5rem; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────── -->
+<nav class="navbar">
+  <span class="navbar-brand">⚡ SENRG7</span>
+  <span class="navbar-sep"></span>
+
+  <div class="ws-indicator">
+    <span class="ws-dot" id="wsDot"></span>
+    <span id="wsLabel">Desconectado</span>
+  </div>
+
+  <a href="/configuracion" class="btn-nav">
+    <i class="bi bi-gear"></i> Config
+  </a>
+  <form action="/logout" method="POST" style="margin:0">
+    <button type="submit" class="btn-nav">
+      <i class="bi bi-box-arrow-right"></i> Salir
+    </button>
+  </form>
+</nav>
+
+<!-- ── CONTENIDO PRINCIPAL ────────────────────────────── -->
+<main class="main">
+
+  <!-- Columna izquierda: máquinas -->
+  <div>
+    <div class="seccion-titulo">
+      <i class="bi bi-cpu"></i> Máquinas en tiempo real
+    </div>
+    <div class="maquinas-grid" id="maquinasGrid">
+      <div class="sin-datos">
+        <i class="bi bi-hourglass-split"></i>
+        Cargando máquinas...
+      </div>
+    </div>
+  </div>
+
+  <!-- Columna derecha: eventos + resumen -->
+  <div class="panel-eventos">
+
+    <!-- Resumen del día -->
+    <div class="card-resumen" id="cardResumen">
+      <div class="seccion-titulo" style="margin-bottom:.75rem">
+        <i class="bi bi-bar-chart-line"></i> Resumen hoy
+      </div>
+      <div id="resumenContenido">
+        <div class="sin-datos" style="padding:1rem">
+          <i class="bi bi-hourglass-split"></i>
+          Sin datos aún
+        </div>
+      </div>
+    </div>
+
+    <!-- Log de eventos -->
+    <div class="eventos-lista">
+      <div class="seccion-titulo" style="margin-bottom:.75rem">
+        <i class="bi bi-activity"></i> Eventos recientes
+      </div>
+      <div class="eventos-scroll" id="eventosScroll">
+        <div class="sin-datos">
+          <i class="bi bi-inbox"></i>
+          Sin eventos
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ════════════════════════════════════════════════════════
+const maquinas  = {};   // {id: {datos, chart, historialCorreinte[]}}
+const MAX_PUNTOS = 60;  // puntos en el gráfico (60 segundos)
+
+// ════════════════════════════════════════════════════════
+//  UTILIDADES
+// ════════════════════════════════════════════════════════
+const COLOR_ESTADO = {
+  APAGADA:    '#475569',
+  ENCENDIDA:  '#f59e0b',
+  BORDANDO:   '#00c896',
+  SOBRECARGA: '#ef4444',
+  SIN_DATOS:  '#334155',
+};
+
+const ICONO_EVENTO = {
+  ROTURA_HILO:   { clase: 'icono-ROTURA_HILO',   icon: 'bi-scissors' },
+  SOBRECARGA:    { clase: 'icono-SOBRECARGA',     icon: 'bi-lightning-charge' },
+  CAMBIO_ESTADO: { clase: 'icono-CAMBIO_ESTADO',  icon: 'bi-arrow-left-right' },
+  INICIO:        { clase: 'icono-INICIO',         icon: 'bi-play-circle' },
+  PAUSA:         { clase: 'icono-PAUSA',          icon: 'bi-pause-circle' },
+  FIN:           { clase: 'icono-INICIO',         icon: 'bi-stop-circle' },
+};
+
+function fmtAmperes(a) {
+  if (a === null || a === undefined) return '—';
+  return parseFloat(a).toFixed(2);
+}
+
+function fmtHora(ts) {
+  if (!ts) return '';
+  try {
+    const d = new Date(ts.replace(' ', 'T') + 'Z');
+    return d.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  } catch { return ts; }
+}
+
+function fmtSeg(s) {
+  if (!s) return '0h 00m';
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${h}h ${String(m).padStart(2, '0')}m`;
+}
+
+// ════════════════════════════════════════════════════════
+//  CARGA INICIAL DE MÁQUINAS
+// ════════════════════════════════════════════════════════
+async function cargarMaquinas() {
+  try {
+    const resp = await fetch('/api/maquinas');
+    if (resp.status === 401) { location.href = '/login'; return; }
+    const lista = await resp.json();
+
+    if (!lista.length) {
+      document.getElementById('maquinasGrid').innerHTML =
+        '<div class="sin-datos"><i class="bi bi-exclamation-circle"></i>No hay máquinas activas en config.json</div>';
+      return;
+    }
+
+    const grid = document.getElementById('maquinasGrid');
+    grid.innerHTML = '';
+
+    for (const m of lista) {
+      crearTarjetaMaquina(m);
+    }
+
+    // Cargar historial de corriente para el gráfico inicial
+    for (const m of lista) {
+      await cargarHistorial(m.id);
+    }
+
+  } catch (err) {
+    console.error('Error cargando máquinas:', err);
+  }
+}
+
+function crearTarjetaMaquina(m) {
+  const grid  = document.getElementById('maquinasGrid');
+  const color = COLOR_ESTADO[m.estado] || COLOR_ESTADO.SIN_DATOS;
+
+  const card = document.createElement('div');
+  card.className = 'maquina-card';
+  card.id = `maquina-${m.id}`;
+  card.style.setProperty('--estado-color', color);
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div>
+        <div class="card-nombre">${m.nombre}</div>
+        <div class="card-desc">${m.descripcion || ''}</div>
+      </div>
+      <span class="badge-estado badge-${m.estado}" id="badge-${m.id}">${m.estado}</span>
+    </div>
+
+    <div>
+      <span class="corriente-valor" id="amp-${m.id}">${fmtAmperes(m.corriente)}</span>
+      <span class="corriente-unidad">A</span>
+    </div>
+
+    <div class="grafico-wrap">
+      <canvas id="chart-${m.id}" height="64"></canvas>
+    </div>
+
+    <div class="card-stats">
+      <div class="stat">
+        <div class="stat-valor" id="stat-efic-${m.id}">—</div>
+        <div class="stat-label">Eficiencia</div>
+      </div>
+      <div class="stat">
+        <div class="stat-valor" id="stat-bord-${m.id}">—</div>
+        <div class="stat-label">Bordando hoy</div>
+      </div>
+      <div class="stat stat-roturas">
+        <div class="stat-valor" id="stat-rot-${m.id}">${m.roturas_hoy ?? 0}</div>
+        <div class="stat-label">Roturas hoy</div>
+      </div>
+    </div>
+
+    <div class="ultima-act">
+      <i class="bi bi-clock"></i>
+      <span id="ts-${m.id}">${m.ultima_lectura ? fmtHora(m.ultima_lectura) : 'Sin datos'}</span>
+    </div>
+  `;
+  grid.appendChild(card);
+
+  // Inicializar Chart.js
+  const ctx = document.getElementById(`chart-${m.id}`).getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: new Array(MAX_PUNTOS).fill(''),
+      datasets: [{
+        data: new Array(MAX_PUNTOS).fill(null),
+        borderColor: color,
+        borderWidth: 1.5,
+        fill: true,
+        backgroundColor: color + '18',
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { intersect: false },
+      scales: {
+        x: { display: false },
+        y: {
+          display: true,
+          beginAtZero: true,
+          grid:  { color: 'rgba(255,255,255,.05)', drawBorder: false },
+          ticks: { color: '#475569', font: { size: 9 }, maxTicksLimit: 4 },
+        }
+      },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    }
+  });
+
+  maquinas[m.id] = { datos: m, chart, historial: [] };
+}
+
+async function cargarHistorial(id) {
+  try {
+    const resp = await fetch(`/api/maquinas/${id}/lecturas?minutos=1`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+
+    const m = maquinas[id];
+    if (!m) return;
+
+    // Poblar historial con las lecturas existentes
+    for (const l of data.lecturas) {
+      m.historial.push(l.corriente);
+      if (m.historial.length > MAX_PUNTOS) m.historial.shift();
+    }
+    actualizarGrafico(id);
+  } catch (err) {
+    console.error(`Error cargando historial M${id}:`, err);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  ACTUALIZACIÓN DE TARJETA
+// ════════════════════════════════════════════════════════
+function actualizarTarjeta(lectura) {
+  const id     = lectura.maquina_id;
+  const m      = maquinas[id];
+  if (!m) return;
+
+  const estado    = lectura.estado || 'SIN_DATOS';
+  const corriente = parseFloat(lectura.corriente ?? 0);
+  const color     = COLOR_ESTADO[estado] || COLOR_ESTADO.SIN_DATOS;
+
+  // Actualizar valores de texto
+  const ampEl = document.getElementById(`amp-${id}`);
+  if (ampEl) {
+    ampEl.textContent = fmtAmperes(corriente);
+    ampEl.style.color = color;
+  }
+
+  const badgeEl = document.getElementById(`badge-${id}`);
+  if (badgeEl) {
+    badgeEl.textContent  = estado;
+    badgeEl.className    = `badge-estado badge-${estado}`;
+  }
+
+  const tsEl = document.getElementById(`ts-${id}`);
+  if (tsEl && lectura.ts) {
+    tsEl.textContent = new Date(lectura.ts * 1000).toLocaleTimeString('es-BO');
+  }
+
+  // Actualizar borde de color de la tarjeta
+  const card = document.getElementById(`maquina-${id}`);
+  if (card) card.style.setProperty('--estado-color', color);
+
+  // Actualizar color de la línea del gráfico
+  if (m.chart) {
+    m.chart.data.datasets[0].borderColor      = color;
+    m.chart.data.datasets[0].backgroundColor  = color + '18';
+  }
+
+  // Agregar punto al historial
+  m.historial.push(corriente);
+  if (m.historial.length > MAX_PUNTOS) m.historial.shift();
+  actualizarGrafico(id);
+}
+
+function actualizarGrafico(id) {
+  const m = maquinas[id];
+  if (!m || !m.chart) return;
+  const datos = m.historial;
+  const relleno = new Array(Math.max(0, MAX_PUNTOS - datos.length)).fill(null);
+  m.chart.data.datasets[0].data = [...relleno, ...datos];
+  m.chart.update('none');
+}
+
+// ════════════════════════════════════════════════════════
+//  EVENTOS — LOG EN TIEMPO REAL
+// ════════════════════════════════════════════════════════
+async function cargarEventos() {
+  try {
+    const resp = await fetch('/api/eventos?limite=30');
+    if (!resp.ok) return;
+    const eventos = await resp.json();
+    const scroll  = document.getElementById('eventosScroll');
+    scroll.innerHTML = '';
+    for (const e of eventos) agregarEventoDOM(e, false);
+  } catch (err) {
+    console.error('Error cargando eventos:', err);
+  }
+}
+
+function agregarEventoDOM(e, prepend = true) {
+  const scroll = document.getElementById('eventosScroll');
+
+  // Quitar mensaje "sin eventos"
+  const sinDatos = scroll.querySelector('.sin-datos');
+  if (sinDatos) sinDatos.remove();
+
+  const info = ICONO_EVENTO[e.tipo] || { clase: 'icono-default', icon: 'bi-info-circle' };
+
+  const item = document.createElement('div');
+  item.className = 'evento-item';
+  item.innerHTML = `
+    <div class="evento-icono ${info.clase}"><i class="bi ${info.icon}"></i></div>
+    <div class="evento-body">
+      <div class="evento-tipo">${e.tipo.replace(/_/g, ' ')}</div>
+      <div class="evento-desc">${e.descripcion || ''}</div>
+      <div class="evento-meta">
+        <i class="bi bi-cpu" style="font-size:.65rem"></i> ${e.maquina || `M${e.maquina_id}`}
+        &nbsp;·&nbsp;
+        <i class="bi bi-clock" style="font-size:.65rem"></i>
+        ${e.timestamp ? fmtHora(e.timestamp) : ''}
+      </div>
+    </div>
+  `;
+
+  if (prepend && scroll.firstChild) {
+    scroll.insertBefore(item, scroll.firstChild);
+    // Limitar a 50 eventos en pantalla
+    while (scroll.children.length > 50) scroll.removeChild(scroll.lastChild);
+  } else {
+    scroll.appendChild(item);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  RESUMEN DEL DÍA
+// ════════════════════════════════════════════════════════
+async function cargarResumen() {
+  try {
+    const resp = await fetch('/api/resumen');
+    if (!resp.ok) return;
+    const data  = await resp.json();
+    const cont  = document.getElementById('resumenContenido');
+
+    if (!data.length) {
+      cont.innerHTML = '<div class="sin-datos" style="padding:.5rem">Sin datos hoy</div>';
+      return;
+    }
+
+    cont.innerHTML = '';
+    for (const r of data) {
+      const m = maquinas[r.maquina_id];
+      const nombre = m ? m.datos.nombre : `Máquina ${r.maquina_id}`;
+      const totalSeg = (r.seg_bordando + r.seg_encendida + r.seg_apagada + r.seg_sobrecarga) || 1;
+
+      cont.innerHTML += `
+        <div style="margin-bottom:1rem">
+          <div style="font-size:.78rem;font-weight:600;margin-bottom:.5rem">${nombre}</div>
+          <div class="resumen-fila">
+            <span class="resumen-label" style="color:var(--col-bordando)">Bordando</span>
+            <div class="resumen-barra-wrap">
+              <div class="resumen-barra" style="width:${r.seg_bordando/totalSeg*100}%;background:var(--col-bordando)"></div>
+            </div>
+            <span class="resumen-pct" style="color:var(--col-bordando)">${fmtSeg(r.seg_bordando)}</span>
+          </div>
+          <div class="resumen-fila">
+            <span class="resumen-label" style="color:var(--col-encendida)">Encendida</span>
+            <div class="resumen-barra-wrap">
+              <div class="resumen-barra" style="width:${r.seg_encendida/totalSeg*100}%;background:var(--col-encendida)"></div>
+            </div>
+            <span class="resumen-pct" style="color:var(--col-encendida)">${fmtSeg(r.seg_encendida)}</span>
+          </div>
+          <div class="resumen-fila">
+            <span class="resumen-label">Apagada</span>
+            <div class="resumen-barra-wrap">
+              <div class="resumen-barra" style="width:${r.seg_apagada/totalSeg*100}%;background:var(--col-apagada)"></div>
+            </div>
+            <span class="resumen-pct">${fmtSeg(r.seg_apagada)}</span>
+          </div>
+          <div style="font-size:.75rem;margin-top:.35rem;color:var(--text-muted)">
+            Eficiencia: <strong style="color:var(--col-bordando)">${r.eficiencia_pct}%</strong>
+            &nbsp;·&nbsp;
+            Roturas: <strong style="color:#f87171">${r.roturas_hilo}</strong>
+          </div>
+        </div>
+      `;
+
+      // Actualizar stats en la tarjeta de la máquina
+      const eficEl = document.getElementById(`stat-efic-${r.maquina_id}`);
+      const bordEl = document.getElementById(`stat-bord-${r.maquina_id}`);
+      const rotEl  = document.getElementById(`stat-rot-${r.maquina_id}`);
+      if (eficEl) eficEl.textContent = `${r.eficiencia_pct}%`;
+      if (bordEl) bordEl.textContent = fmtSeg(r.seg_bordando);
+      if (rotEl)  rotEl.textContent  = r.roturas_hilo;
+    }
+  } catch (err) {
+    console.error('Error cargando resumen:', err);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  WEBSOCKET
+// ════════════════════════════════════════════════════════
+let ws = null;
+let wsReconectando = false;
+let wsIntento = 0;
+
+function conectarWS() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+  ws.onopen = () => {
+    wsIntento = 0;
+    wsReconectando = false;
+    document.getElementById('wsDot').className   = 'ws-dot conectado';
+    document.getElementById('wsLabel').textContent = 'En línea';
+    // Ping periódico para mantener la conexión viva
+    ws._pingInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) ws.send('ping');
+    }, 30000);
+  };
+
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.tipo === 'lectura') {
+        actualizarTarjeta(msg);
+      } else if (msg.tipo === 'evento') {
+        agregarEventoDOM({
+          maquina_id:  msg.maquina_id,
+          tipo:        msg.tipo_evento || msg.tipo,
+          descripcion: msg.descripcion || '',
+          timestamp:   msg.ts ? new Date(msg.ts * 1000).toISOString() : '',
+        });
+      }
+    } catch (err) {
+      console.warn('Mensaje WS inválido:', e.data);
+    }
+  };
+
+  ws.onclose = (e) => {
+    clearInterval(ws._pingInterval);
+    document.getElementById('wsDot').className    = 'ws-dot';
+    document.getElementById('wsLabel').textContent = 'Reconectando...';
+    if (e.code === 4001) {
+      // Sesión inválida → ir al login
+      location.href = '/login';
+      return;
+    }
+    // Reconexión con backoff exponencial (máx 30s)
+    if (!wsReconectando) {
+      wsReconectando = true;
+      wsIntento++;
+      const delay = Math.min(1000 * Math.pow(2, wsIntento - 1), 30000);
+      setTimeout(conectarWS, delay);
+    }
+  };
+
+  ws.onerror = () => ws.close();
+}
+
+// ════════════════════════════════════════════════════════
+//  INICIALIZACIÓN
+// ════════════════════════════════════════════════════════
+(async function init() {
+  await cargarMaquinas();
+  await Promise.all([cargarEventos(), cargarResumen()]);
+  conectarWS();
+
+  // Actualizar resumen cada 60 segundos
+  setInterval(cargarResumen, 60_000);
+})();
+</script>
+</body>
+</html>
