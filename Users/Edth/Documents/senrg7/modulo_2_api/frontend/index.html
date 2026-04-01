@@ -114,6 +114,21 @@
     }
     .btn-nav:hover { color: var(--text); border-color: var(--accent); background: var(--bg2); }
 
+    /* Stats rápidas navbar */
+    .nav-stat {
+      font-size: .73rem; font-weight: 700;
+      color: var(--muted);
+      display: inline-flex; align-items: center; gap: .25rem;
+      padding: .2rem .55rem;
+      background: var(--bg2);
+      border: 1px solid var(--brd);
+      border-radius: 999px;
+    }
+    .nav-stat i { font-size: .75rem; }
+    .nav-stat.activa   { color: var(--st-encendida); border-color: rgba(245,158,11,.3); }
+    .nav-stat.bordando { color: var(--st-bordando);  border-color: rgba(16,185,129,.3); }
+    .nav-stat.roturas  { color: var(--st-sobrecarga);border-color: rgba(239,68,68,.3); }
+
     /* ════════════════════════════════════════
        LAYOUT
     ════════════════════════════════════════ */
@@ -323,6 +338,18 @@
   <a class="nav-brand" href="/dashboard">
     <i class="bi bi-lightning-charge-fill"></i> SENRG7
   </a>
+  <!-- Stats rápidas en navbar -->
+  <div class="nav-stats" id="navStats" style="display:flex;align-items:center;gap:.5rem;margin-left:.75rem">
+    <span class="nav-stat" id="nst-activas" title="Máquinas activas" style="display:none">
+      <i class="bi bi-cpu-fill"></i> <span id="nst-activas-val">0</span>
+    </span>
+    <span class="nav-stat" id="nst-bordando" title="Máquinas bordando" style="display:none">
+      <i class="bi bi-play-fill"></i> <span id="nst-bordando-val">0</span>
+    </span>
+    <span class="nav-stat" id="nst-roturas" title="Roturas hoy" style="display:none">
+      <i class="bi bi-scissors"></i> <span id="nst-roturas-val">0</span>
+    </span>
+  </div>
   <span class="nav-sep"></span>
 
   <div class="ws-pill">
@@ -563,6 +590,7 @@ function actualizarTarjeta(msg) {
   m.hist.push(amp);
   if (m.hist.length > MAX_PTS) m.hist.shift();
   renderGrafico(id);
+  actualizarNavStats();
 }
 
 function renderGrafico(id) {
@@ -672,6 +700,7 @@ async function cargarResumen() {
     if (brd) brd.textContent = fmtSeg(r.seg_bordando);
     if (rot) rot.textContent = r.roturas_hilo;
   }
+  actualizarNavStats();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -712,6 +741,38 @@ function conectarWS() {
     setTimeout(conectarWS, delay);
   };
   ws.onerror = () => ws.close();
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATS NAVBAR
+// ═══════════════════════════════════════════════════════
+function actualizarNavStats() {
+  let activas = 0, bordando = 0, roturas = 0;
+  for (const id of Object.keys(maquinas)) {
+    const badge = document.getElementById(`badge-${id}`);
+    const estado = badge ? badge.textContent.trim() : '';
+    if (estado === 'ENCENDIDA' || estado === 'BORDANDO') activas++;
+    if (estado === 'BORDANDO') bordando++;
+    const rot = document.getElementById(`rot-${id}`);
+    if (rot && rot.textContent !== '—') roturas += parseInt(rot.textContent) || 0;
+  }
+
+  const eActivas  = document.getElementById('nst-activas');
+  const eBordando = document.getElementById('nst-bordando');
+  const eRoturas  = document.getElementById('nst-roturas');
+  if (!eActivas) return;
+
+  document.getElementById('nst-activas-val').textContent  = activas;
+  document.getElementById('nst-bordando-val').textContent = bordando;
+  document.getElementById('nst-roturas-val').textContent  = roturas;
+
+  eActivas.style.display  = 'inline-flex';
+  eBordando.style.display = bordando > 0 ? 'inline-flex' : 'none';
+  eRoturas.style.display  = roturas > 0  ? 'inline-flex' : 'none';
+
+  eActivas.className  = `nav-stat${activas>0?' activa':''}`;
+  eBordando.className = 'nav-stat bordando';
+  eRoturas.className  = 'nav-stat roturas';
 }
 
 // ═══════════════════════════════════════════════════════

@@ -390,6 +390,13 @@ async def pagina_configuracion(usuario: str = Depends(pagina_protegida)):
     return FileResponse(FRONTEND_DIR / "config.html")
 
 
+@app.get("/reporte", response_class=HTMLResponse, include_in_schema=False)
+async def pagina_reporte(usuario: str = Depends(pagina_protegida)):
+    if isinstance(usuario, RedirectResponse):
+        return usuario
+    return FileResponse(FRONTEND_DIR / "reporte.html")
+
+
 # ══════════════════════════════════════════════════════════
 #  API REST
 # ══════════════════════════════════════════════════════════
@@ -564,6 +571,94 @@ async def get_eventos(
         }
         for f in filas
     ]
+
+
+@app.get("/api/reporte", tags=["Análisis"])
+async def get_reporte(
+    fecha: str | None = None,
+    formato: str = "json",
+    usuario: str = Depends(sesion_requerida),
+):
+    """
+    Reporte productivo de un día específico (default: hoy).
+    fecha: YYYY-MM-DD. formato: json | csv
+    """
+    import csv
+    import io
+
+    if fecha is None:
+        fecha = datetime.utcnow().strftime("%Y-%m-%d")
+
+    with get_db(_config) as conn:
+        maquinas_db = conn.execute(
+            "SELECT id, nombre FROM maquinas WHERE activa = 1 ORDER BY id"
+        ).fetchall()
+
+        filas = conn.execute(
+            """SELECT
+                   maquina_id,
+                   SUM(CASE WHEN estado = 'BORDANDO'   THEN 1 ELSE 0 END) AS seg_bordando,
+                   SUM(CASE WHEN estado = 'ENCENDIDA'  THEN 1 ELSE 0 END) AS seg_encendida,
+                   SUM(CASE WHEN estado = 'APAGADA'    THEN 1 ELSE 0 END) AS seg_apagada,
+                   SUM(CASE WHEN estado = 'SOBRECARGA' THEN 1 ELSE 0 END) AS seg_sobrecarga,
+                   COUNT(*) AS total_lecturas
+               FROM lecturas
+               WHERE date(timestamp) = ?
+               GROUP BY maquina_id""",
+            (fecha,),
+        ).fetchall()
+
+        roturas = conn.execute(
+            """SELECT maquina_id, COUNT(*) as total
+               FROM eventos
+               WHERE tipo = 'ROTURA_HILO' AND date(timestamp) = ?
+               GROUP BY maquina_id""",
+            (fecha,),
+        ).fetchall()
+
+    nombres = {m["id"]: m["nombre"] for m in maquinas_db}
+    roturas_map = {r["maquina_id"]: r["total"] for r in roturas}
+
+    def fmt_tiempo(seg):
+        h = seg // 3600
+        m = (seg % 3600) // 60
+        return f"{h}h {m:02d}m"
+
+    datos = []
+    for f in filas:
+        total = f["total_lecturas"] or 1
+        mid   = f["maquina_id"]
+        datos.append({
+            "maquina_id":     mid,
+            "nombre":         nombres.get(mid, f"Maquina {mid}"),
+            "fecha":          fecha,
+            "seg_bordando":   f["seg_bordando"],
+            "seg_encendida":  f["seg_encendida"],
+            "seg_apagada":    f["seg_apagada"],
+            "seg_sobrecarga": f["seg_sobrecarga"],
+            "tiempo_bordando":   fmt_tiempo(f["seg_bordando"]),
+            "tiempo_encendida":  fmt_tiempo(f["seg_encendida"]),
+            "tiempo_apagada":    fmt_tiempo(f["seg_apagada"]),
+            "eficiencia_pct": round(f["seg_bordando"] / total * 100, 1),
+            "roturas_hilo":   roturas_map.get(mid, 0),
+        })
+
+    if formato == "csv":
+        output = io.StringIO()
+        campos = ["nombre", "fecha", "tiempo_bordando", "tiempo_encendida",
+                  "tiempo_apagada", "eficiencia_pct", "roturas_hilo"]
+        writer = csv.DictWriter(output, fieldnames=campos, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(datos)
+        csv_str = output.getvalue()
+        from fastapi.responses import Response
+        return Response(
+            content=csv_str,
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=reporte_{fecha}.csv"},
+        )
+
+    return {"fecha": fecha, "maquinas": datos}
 
 
 @app.get("/api/config", tags=["Configuración"])

@@ -6,9 +6,9 @@
 ---
 
 ## 📅 ÚLTIMA SESIÓN
-- **Fecha:** 2026-03-30
-- **Estado:** Semana 1 completa — sistema core funcional implementado
-- **Próximo paso:** Instalar dependencias, encender ESP32 y hacer prueba integrada end-to-end
+- **Fecha:** 2026-04-01
+- **Estado:** Sistema funcionando con ESP32 conectado y leyendo corriente. Semana 2 implementada.
+- **Próximo paso:** Configurar Telegram bot (token + chat_id), calibrar FACTOR_CAL, preparar instalador
 
 ---
 
@@ -76,6 +76,15 @@
 - [x] `scripts/iniciar_bridge.bat` — arranca módulo 1
 - [x] `scripts/iniciar_api.bat` — arranca módulo 2
 
+### Semana 2 — Alertas y Reportes
+- [x] `modulo_4_alertas/telegram_bot.py` — bot standalone MQTT→Telegram con cooldown anti-spam
+- [x] `modulo_4_alertas/requirements.txt`
+- [x] `scripts/iniciar_alertas.bat`
+- [x] `GET /api/reporte?fecha=YYYY-MM-DD&formato=json|csv` — reporte productivo diario con descarga CSV
+- [x] `modulo_2_api/frontend/reporte.html` — página de reporte con tabla y descarga CSV
+- [x] Dashboard: stats rápidas en navbar (activas, bordando, roturas)
+- [x] Tema claro/oscuro aplicado correctamente en todas las páginas
+
 ---
 
 ## 🔄 EN PROGRESO
@@ -100,15 +109,15 @@ _Semana 1 completa. Lista para prueba integrada._
 ## 📋 PENDIENTE — SEMANA 2 (producto terminado)
 
 ### Alertas Telegram
-- [ ] Crear `modulo_4_alertas/telegram_bot.py`
+- [x] Crear `modulo_4_alertas/telegram_bot.py`
 - [ ] Integrar con mqtt_bridge.py
-- [ ] Configuración desde dashboard (token, chat_id, toggles)
+- [x] Configuración desde dashboard (token, chat_id, toggles)
 - [ ] Test: rotura de hilo genera mensaje en Telegram
 
 ### Reporte de producción
-- [ ] Endpoint `GET /api/reporte?fecha=YYYY-MM-DD`
-- [ ] Genera resumen: tiempo productivo, roturas, eficiencia por máquina
-- [ ] Exportable como CSV desde el dashboard
+- [x] Endpoint `GET /api/reporte?fecha=YYYY-MM-DD`
+- [x] Genera resumen: tiempo productivo, roturas, eficiencia por máquina
+- [x] Exportable como CSV desde el dashboard
 
 ### Empaquetado instalable
 - [ ] Crear `installer/senrg7.iss` — script Inno Setup
@@ -119,7 +128,8 @@ _Semana 1 completa. Lista para prueba integrada._
 ---
 
 ## 🐛 BUGS CONOCIDOS
-_Ninguno detectado — pendiente prueba en hardware real_
+- Firmware: WiFi SSID en main.ino dice "FLIALOAYZAI" pero red real es "FLIALOAYZA" — verificar al calibrar
+- Tema: si el sistema operativo cambia de preferencia de color, recargar página para que se aplique
 
 ---
 

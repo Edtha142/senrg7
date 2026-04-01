@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENRG7 — Reporte</title>
+  <script src="/theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f172a; --bg2: #1e293b; --card: #1e293b; --brd: #334155; --brd2: #3f526b;
+      --accent: #10b981; --text: #f1f5f9; --text2: #cbd5e1; --muted: #64748b;
+      --st-bordando: #10b981; --st-encendida: #f59e0b; --st-apagada: #64748b; --st-sobrecarga: #ef4444;
+      --navbar-h: 58px; --shadow: 0 2px 12px rgba(0,0,0,.3);
+    }
+    [data-theme="light"] {
+      --bg: #f1f5f9; --bg2: #e2e8f0; --card: #ffffff; --brd: #e2e8f0; --brd2: #cbd5e1;
+      --accent: #059669; --text: #0f172a; --text2: #334155; --muted: #64748b;
+      --st-bordando: #059669; --st-encendida: #d97706; --st-apagada: #94a3b8; --st-sobrecarga: #dc2626;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    html, body { min-height: 100%; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; transition: background .25s, color .25s; }
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--navbar-h);
+      background: var(--card); border-bottom: 1px solid var(--brd);
+      display: flex; align-items: center; padding: 0 1.25rem; gap: .75rem;
+      z-index: 100; box-shadow: var(--shadow);
+    }
+    .nav-brand { display: flex; align-items: center; gap: .5rem; font-size: 1.1rem; font-weight: 800; letter-spacing: .08em; color: var(--accent); text-decoration: none; }
+    .nav-sep { flex: 1; }
+    .btn-nav { background: transparent; border: 1px solid var(--brd); border-radius: 8px; color: var(--muted); padding: .35rem .75rem; font-size: .8rem; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem; text-decoration: none; transition: color .2s, border-color .2s, background .2s; }
+    .btn-nav:hover { color: var(--text); border-color: var(--accent); background: var(--bg2); }
+    .page { margin-top: var(--navbar-h); max-width: 900px; margin-left: auto; margin-right: auto; padding: 1.5rem 1.25rem 3rem; }
+    .page-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: .6rem; }
+    .page-title i { color: var(--accent); }
+    .filtros { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filtros label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    input[type="date"] { background: var(--bg2); border: 1px solid var(--brd); border-radius: 8px; padding: .55rem .85rem; color: var(--text); font-size: .88rem; outline: none; transition: border-color .2s; }
+    input[type="date"]:focus { border-color: var(--accent); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #0ea5e9); border: none; border-radius: 8px; color: #fff; font-size: .88rem; font-weight: 700; padding: .6rem 1.25rem; cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; transition: opacity .2s; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-csv { background: transparent; border: 1px solid var(--brd); border-radius: 8px; color: var(--muted); padding: .6rem 1.1rem; font-size: .88rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; transition: color .2s, border-color .2s; }
+    .btn-csv:hover { color: var(--st-bordando); border-color: var(--st-bordando); }
+    .tabla-wrap { background: var(--card); border: 1px solid var(--brd); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: .75rem 1rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); text-align: left; border-bottom: 1px solid var(--brd); background: var(--bg2); }
+    tbody td { padding: .8rem 1rem; border-bottom: 1px solid var(--brd); font-size: .88rem; color: var(--text2); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg2); }
+    .td-nombre { font-weight: 700; color: var(--text); }
+    .td-ef { font-weight: 800; }
+    .td-rot { color: var(--st-sobrecarga); font-weight: 700; }
+    .vacio { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .vacio i { font-size: 2rem; display: block; margin-bottom: .75rem; opacity: .4; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="nav-brand" href="/dashboard"><i class="bi bi-lightning-charge-fill"></i> SENRG7</a>
+  <span class="nav-sep"></span>
+  <button class="btn-nav" data-btn-tema onclick="SENRG7.toggleTema()" title="Cambiar tema"><i class="bi bi-sun"></i></button>
+  <a href="/dashboard" class="btn-nav"><i class="bi bi-grid"></i> Dashboard</a>
+  <form action="/logout" method="POST" style="margin:0">
+    <button type="submit" class="btn-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
+  </form>
+</nav>
+
+<div class="page">
+  <div class="page-title"><i class="bi bi-file-earmark-bar-graph"></i> Reporte de Producción</div>
+
+  <div class="filtros">
+    <label>Fecha</label>
+    <input type="date" id="fechaInput">
+    <button class="btn-primary" onclick="cargarReporte()">
+      <i class="bi bi-search"></i> Consultar
+    </button>
+    <a class="btn-csv" id="btnCsv" href="#" onclick="descargarCsv(event)">
+      <i class="bi bi-download"></i> Descargar CSV
+    </a>
+  </div>
+
+  <div class="tabla-wrap" id="tablaWrap">
+    <div class="vacio">
+      <i class="bi bi-calendar-event"></i>
+      <p>Selecciona una fecha y presiona Consultar</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Fecha por defecto: hoy
+  const hoy = new Date().toISOString().slice(0,10);
+  document.getElementById('fechaInput').value = hoy;
+  document.getElementById('fechaInput').max   = hoy;
+
+  function fmtTiempo(seg) {
+    if (!seg) return '0h 00m';
+    const h = Math.floor(seg / 3600);
+    const m = Math.floor((seg % 3600) / 60);
+    return `${h}h ${String(m).padStart(2,'0')}m`;
+  }
+
+  async function cargarReporte() {
+    const fecha = document.getElementById('fechaInput').value;
+    if (!fecha) return;
+
+    const resp = await fetch(`/api/reporte?fecha=${fecha}`);
+    if (resp.status === 401) { location.href = '/login'; return; }
+    const data = await resp.json();
+    const lista = data.maquinas || [];
+
+    const wrap = document.getElementById('tablaWrap');
+    if (!lista.length) {
+      wrap.innerHTML = '<div class="vacio"><i class="bi bi-inbox"></i><p>Sin datos para esta fecha</p></div>';
+      return;
+    }
+
+    let rows = '';
+    for (const r of lista) {
+      const efColor = r.eficiencia_pct >= 70 ? 'var(--st-bordando)' : r.eficiencia_pct >= 40 ? 'var(--st-encendida)' : 'var(--st-sobrecarga)';
+      rows += `<tr>
+        <td class="td-nombre">${r.nombre}</td>
+        <td>${r.fecha}</td>
+        <td style="color:var(--st-bordando)">${r.tiempo_bordando}</td>
+        <td style="color:var(--st-encendida)">${r.tiempo_encendida}</td>
+        <td>${r.tiempo_apagada}</td>
+        <td class="td-ef" style="color:${efColor}">${r.eficiencia_pct}%</td>
+        <td class="td-rot">${r.roturas_hilo}</td>
+      </tr>`;
+    }
+
+    wrap.innerHTML = `<table>
+      <thead><tr>
+        <th>Máquina</th><th>Fecha</th><th>Bordando</th>
+        <th>Encendida</th><th>Apagada</th><th>Eficiencia</th><th>Roturas</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  function descargarCsv(e) {
+    e.preventDefault();
+    const fecha = document.getElementById('fechaInput').value || hoy;
+    window.location.href = `/api/reporte?fecha=${fecha}&formato=csv`;
+  }
+
+  // Cargar al entrar
+  cargarReporte();
+</script>
+</body>
+</html>
