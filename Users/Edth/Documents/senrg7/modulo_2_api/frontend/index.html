@@ -1,365 +1,338 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SENRG7 — Dashboard</title>
+  <script src="/theme.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ════════════════════════════════════════
+       SISTEMA DE TEMAS
+    ════════════════════════════════════════ */
     :root {
-      --bg:          #0a0e1a;
-      --bg2:         #0d1120;
-      --card:        #111827;
-      --card-brd:    #1e2a45;
-      --accent:      #00c896;
-      --accent2:     #4fc3f7;
-      --text:        #e2e8f0;
-      --text-muted:  #64748b;
-      --navbar-h:    56px;
+      --bg:          #0f172a;
+      --bg2:         #1e293b;
+      --card:        #1e293b;
+      --card2:       #263347;
+      --brd:         #334155;
+      --brd2:        #3f526b;
+      --text:        #f1f5f9;
+      --text2:       #cbd5e1;
+      --muted:       #64748b;
+      --accent:      #10b981;
+      --accent2:     #38bdf8;
+      --navbar-h:    58px;
 
-      --col-apagada:    #475569;
-      --col-encendida:  #f59e0b;
-      --col-bordando:   #00c896;
-      --col-sobrecarga: #ef4444;
+      --st-apagada:    #64748b;
+      --st-encendida:  #f59e0b;
+      --st-bordando:   #10b981;
+      --st-sobrecarga: #ef4444;
+
+      --chart-grid:  rgba(255,255,255,.06);
+      --shadow-card: 0 2px 12px rgba(0,0,0,.35);
+    }
+    [data-theme="light"] {
+      --bg:          #f1f5f9;
+      --bg2:         #e2e8f0;
+      --card:        #ffffff;
+      --card2:       #f8fafc;
+      --brd:         #e2e8f0;
+      --brd2:        #cbd5e1;
+      --text:        #0f172a;
+      --text2:       #334155;
+      --muted:       #64748b;
+      --accent:      #059669;
+      --accent2:     #0284c7;
+      --st-apagada:    #94a3b8;
+      --st-encendida:  #d97706;
+      --st-bordando:   #059669;
+      --st-sobrecarga: #dc2626;
+      --chart-grid:  rgba(0,0,0,.07);
+      --shadow-card: 0 2px 12px rgba(0,0,0,.08);
     }
 
     html, body { height: 100%; }
-
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Segoe UI', system-ui, sans-serif;
       font-size: 14px;
-      overflow-x: hidden;
+      transition: background .25s, color .25s;
     }
 
-    /* ── NAVBAR ── */
+    /* ════════════════════════════════════════
+       NAVBAR
+    ════════════════════════════════════════ */
     .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+      position: fixed; top: 0; left: 0; right: 0;
       height: var(--navbar-h);
-      background: rgba(17,24,39,.95);
-      border-bottom: 1px solid var(--card-brd);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      padding: 0 1.5rem;
-      gap: 1rem;
+      background: var(--card);
+      border-bottom: 1px solid var(--brd);
+      display: flex; align-items: center;
+      padding: 0 1.25rem; gap: .75rem;
       z-index: 100;
+      box-shadow: var(--shadow-card);
     }
-    .navbar-brand {
-      font-size: 1.2rem;
-      font-weight: 800;
-      letter-spacing: .12em;
-      background: linear-gradient(90deg, #00c896, #4fc3f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      flex-shrink: 0;
+    .nav-brand {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: 1.1rem; font-weight: 800; letter-spacing: .08em;
+      color: var(--accent); text-decoration: none;
     }
-    .navbar-sep { flex: 1; }
-    .ws-indicator {
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      font-size: .78rem;
-      color: var(--text-muted);
+    .nav-brand i { font-size: 1.3rem; }
+    .nav-sep { flex: 1; }
+
+    /* Indicador WebSocket */
+    .ws-pill {
+      display: flex; align-items: center; gap: .4rem;
+      background: var(--bg2);
+      border: 1px solid var(--brd);
+      border-radius: 999px;
+      padding: .25rem .75rem;
+      font-size: .75rem; color: var(--muted);
     }
     .ws-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--text-muted);
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
       transition: background .4s;
     }
-    .ws-dot.conectado { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-    .ws-dot.error     { background: var(--col-sobrecarga); }
+    .ws-dot.on  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .ws-dot.err { background: var(--st-sobrecarga); }
 
     .btn-nav {
       background: transparent;
-      border: 1px solid var(--card-brd);
+      border: 1px solid var(--brd);
       border-radius: 8px;
-      color: var(--text-muted);
-      padding: .35rem .75rem;
-      font-size: .82rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      transition: color .2s, border-color .2s;
+      color: var(--muted); padding: .35rem .75rem;
+      font-size: .8rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .35rem;
       text-decoration: none;
+      transition: color .2s, border-color .2s, background .2s;
     }
-    .btn-nav:hover { color: var(--text); border-color: var(--accent); }
+    .btn-nav:hover { color: var(--text); border-color: var(--accent); background: var(--bg2); }
 
-    /* ── LAYOUT PRINCIPAL ── */
-    .main {
+    /* ════════════════════════════════════════
+       LAYOUT
+    ════════════════════════════════════════ */
+    .page {
       margin-top: var(--navbar-h);
-      padding: 1.5rem;
+      padding: 1.25rem;
       display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 1.5rem;
+      grid-template-columns: 1fr 300px;
+      grid-template-rows: auto 1fr;
+      gap: 1.25rem;
       min-height: calc(100vh - var(--navbar-h));
     }
-    @media (max-width: 900px) {
-      .main { grid-template-columns: 1fr; }
+    @media (max-width: 960px) {
+      .page { grid-template-columns: 1fr; }
+      .col-derecha { order: -1; }
     }
 
-    /* ── SECCIÓN IZQUIERDA: MÁQUINAS ── */
-    .seccion-titulo {
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
+    /* ════════════════════════════════════════
+       SECCIÓN HEADER
+    ════════════════════════════════════════ */
+    .sec-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: .4rem;
+      margin-bottom: .85rem;
     }
-    .seccion-titulo i { font-size: .9rem; }
 
+    /* ════════════════════════════════════════
+       TARJETAS DE MÁQUINA
+    ════════════════════════════════════════ */
     .maquinas-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
       gap: 1rem;
+      align-content: start;
     }
 
-    /* ── TARJETA DE MÁQUINA ── */
-    .maquina-card {
+    .maq-card {
       background: var(--card);
-      border: 1px solid var(--card-brd);
+      border: 1px solid var(--brd);
       border-radius: 14px;
-      padding: 1.25rem;
-      transition: border-color .3s, box-shadow .3s;
-      position: relative;
       overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow .2s, border-color .2s, background .25s;
     }
-    .maquina-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--estado-color, var(--card-brd));
+    .maq-card:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.25);
+      border-color: var(--brd2);
+    }
+
+    /* Barra de color según estado en la parte superior */
+    .maq-estado-bar {
+      height: 4px;
+      background: var(--estado-color, var(--brd));
       transition: background .4s;
     }
-    .maquina-card:hover {
-      border-color: rgba(255,255,255,.12);
-      box-shadow: 0 8px 30px rgba(0,0,0,.3);
-    }
 
-    .card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
-    .card-nombre { font-weight: 700; font-size: .95rem; }
-    .card-desc   { font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
+    .maq-body { padding: 1rem 1.1rem; }
 
-    .badge-estado {
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .06em;
-      padding: .3rem .7rem;
-      border-radius: 999px;
-      flex-shrink: 0;
-      margin-left: .5rem;
+    .maq-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: .85rem;
     }
-    .badge-APAGADA    { background: rgba(71,85,105,.3);  color: #94a3b8; border: 1px solid rgba(71,85,105,.5); }
-    .badge-ENCENDIDA  { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
-    .badge-BORDANDO   { background: rgba(0,200,150,.15);  color: #00c896; border: 1px solid rgba(0,200,150,.3); }
-    .badge-SOBRECARGA { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
-    .badge-SIN_DATOS  { background: rgba(100,116,139,.15); color: #64748b; border: 1px solid rgba(100,116,139,.3); }
+    .maq-nombre { font-weight: 700; font-size: .95rem; color: var(--text); }
+    .maq-desc   { font-size: .72rem; color: var(--muted); margin-top: .1rem; }
 
-    /* Corriente grande */
-    .corriente-valor {
-      font-size: 2.8rem;
-      font-weight: 800;
-      line-height: 1;
+    /* Badge de estado */
+    .badge {
+      font-size: .67rem; font-weight: 700; letter-spacing: .05em;
+      padding: .22rem .65rem; border-radius: 999px; white-space: nowrap;
+      flex-shrink: 0; margin-left: .5rem;
+    }
+    .badge-APAGADA    { background: rgba(100,116,139,.18); color: var(--st-apagada);    border: 1px solid rgba(100,116,139,.3); }
+    .badge-ENCENDIDA  { background: rgba(245,158,11,.14);  color: var(--st-encendida);  border: 1px solid rgba(245,158,11,.3); }
+    .badge-BORDANDO   { background: rgba(16,185,129,.14);  color: var(--st-bordando);   border: 1px solid rgba(16,185,129,.3); }
+    .badge-SOBRECARGA { background: rgba(239,68,68,.14);   color: var(--st-sobrecarga); border: 1px solid rgba(239,68,68,.3); }
+    .badge-SIN_DATOS  { background: rgba(100,116,139,.1);  color: var(--muted);          border: 1px solid var(--brd); }
+
+    /* Corriente — número grande */
+    .maq-corriente {
+      display: flex; align-items: baseline; gap: .25rem;
+      margin-bottom: .85rem;
+    }
+    .corriente-num {
+      font-size: 2.6rem; font-weight: 800; line-height: 1;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -.02em;
       color: var(--estado-color, var(--text));
       transition: color .4s;
     }
-    .corriente-unidad {
-      font-size: 1rem;
-      font-weight: 400;
-      color: var(--text-muted);
-      margin-left: .2rem;
+    .corriente-unit { font-size: .95rem; color: var(--muted); font-weight: 500; }
+
+    /* Gráfico mini */
+    .maq-chart { height: 60px; margin-bottom: .85rem; }
+    .maq-chart canvas { width: 100% !important; }
+
+    /* Stats row */
+    .maq-stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid var(--brd);
+      padding-top: .75rem; gap: .5rem;
+    }
+    .stat { text-align: center; }
+    .stat-val {
+      font-size: .9rem; font-weight: 700; color: var(--text2);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-lbl {
+      font-size: .64rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .05em; margin-top: .1rem;
+    }
+    .stat-roturas .stat-val { color: var(--st-sobrecarga); }
+
+    /* Timestamp */
+    .maq-ts {
+      font-size: .68rem; color: var(--muted);
+      margin-top: .55rem; display: flex; align-items: center; gap: .3rem;
     }
 
-    /* Mini gráfico de corriente */
-    .grafico-wrap {
-      margin-top: 1rem;
-      height: 64px;
-    }
-    .grafico-wrap canvas { width: 100% !important; }
-
-    /* Fila de stats */
-    .card-stats {
-      display: flex;
-      gap: 1rem;
-      margin-top: .85rem;
-      padding-top: .85rem;
-      border-top: 1px solid var(--card-brd);
-    }
-    .stat {
-      flex: 1;
-      text-align: center;
-    }
-    .stat-valor { font-size: .95rem; font-weight: 700; }
-    .stat-label { font-size: .68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-top: .15rem; }
-    .stat-roturas .stat-valor { color: #f87171; }
-
-    /* Indicador de última actualización */
-    .ultima-act {
-      font-size: .7rem;
-      color: var(--text-muted);
-      margin-top: .6rem;
-      display: flex;
-      align-items: center;
-      gap: .3rem;
+    /* ════════════════════════════════════════
+       COLUMNA DERECHA
+    ════════════════════════════════════════ */
+    .col-derecha {
+      display: flex; flex-direction: column; gap: 1.25rem;
     }
 
-    /* ── PANEL DERECHO: EVENTOS ── */
-    .panel-eventos {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .eventos-lista {
+    .panel {
       background: var(--card);
-      border: 1px solid var(--card-brd);
+      border: 1px solid var(--brd);
       border-radius: 14px;
-      padding: 1.25rem;
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      padding: 1rem 1.1rem;
+      box-shadow: var(--shadow-card);
+      transition: background .25s;
     }
 
+    /* Resumen */
+    .resumen-maq { margin-bottom: 1rem; }
+    .resumen-maq:last-child { margin-bottom: 0; }
+    .resumen-nombre {
+      font-size: .78rem; font-weight: 700; margin-bottom: .5rem; color: var(--text2);
+    }
+    .resumen-row {
+      display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
+    }
+    .resumen-lbl { font-size: .7rem; color: var(--muted); width: 70px; flex-shrink: 0; }
+    .resumen-track {
+      flex: 1; height: 5px; background: var(--bg2);
+      border-radius: 99px; overflow: hidden;
+    }
+    .resumen-fill {
+      height: 100%; border-radius: 99px; transition: width .8s ease;
+    }
+    .resumen-val { font-size: .7rem; font-weight: 700; min-width: 38px; text-align: right; }
+    .resumen-meta { font-size: .7rem; color: var(--muted); margin-top: .4rem; }
+    .resumen-meta span { font-weight: 700; }
+
+    /* Eventos */
     .eventos-scroll {
-      overflow-y: auto;
-      flex: 1;
-      max-height: calc(100vh - 200px);
+      overflow-y: auto; max-height: 380px;
       scrollbar-width: thin;
-      scrollbar-color: var(--card-brd) transparent;
+      scrollbar-color: var(--brd) transparent;
     }
 
-    .evento-item {
-      display: flex;
-      gap: .75rem;
-      padding: .65rem 0;
-      border-bottom: 1px solid rgba(255,255,255,.04);
-      animation: fadeIn .3s ease;
+    .ev-item {
+      display: flex; gap: .65rem;
+      padding: .6rem 0;
+      border-bottom: 1px solid var(--brd);
+      animation: slideIn .25s ease;
     }
-    .evento-item:last-child { border-bottom: none; }
+    .ev-item:last-child { border-bottom: none; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .evento-icono {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .85rem;
-      flex-shrink: 0;
+    .ev-icon {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
     }
-    .icono-ROTURA_HILO   { background: rgba(239,68,68,.2);  color: #f87171; }
-    .icono-SOBRECARGA    { background: rgba(239,68,68,.2);  color: #f87171; }
-    .icono-CAMBIO_ESTADO { background: rgba(79,195,247,.15); color: #4fc3f7; }
-    .icono-INICIO        { background: rgba(0,200,150,.15);  color: #00c896; }
-    .icono-PAUSA         { background: rgba(245,158,11,.15); color: #fbbf24; }
-    .icono-default       { background: rgba(100,116,139,.15); color: #94a3b8; }
+    .ev-ROTURA_HILO   { background: rgba(239,68,68,.15);  color: var(--st-sobrecarga); }
+    .ev-SOBRECARGA    { background: rgba(239,68,68,.15);  color: var(--st-sobrecarga); }
+    .ev-CAMBIO_ESTADO { background: rgba(56,189,248,.12); color: var(--accent2); }
+    .ev-INICIO        { background: rgba(16,185,129,.12); color: var(--st-bordando); }
+    .ev-PAUSA         { background: rgba(245,158,11,.12); color: var(--st-encendida); }
+    .ev-default       { background: var(--bg2); color: var(--muted); }
 
-    .evento-body { flex: 1; min-width: 0; }
-    .evento-tipo {
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .04em;
-    }
-    .evento-desc {
-      font-size: .72rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: .1rem;
-    }
-    .evento-meta {
-      font-size: .68rem;
-      color: var(--text-muted);
-      margin-top: .2rem;
-    }
+    .ev-body { flex: 1; min-width: 0; }
+    .ev-tipo { font-size: .72rem; font-weight: 700; color: var(--text2); }
+    .ev-desc { font-size: .7rem; color: var(--muted); margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ev-meta { font-size: .65rem; color: var(--muted); margin-top: .15rem; }
 
-    /* ── CARD RESUMEN DÍA ── */
-    .card-resumen {
-      background: var(--card);
-      border: 1px solid var(--card-brd);
-      border-radius: 14px;
-      padding: 1.25rem;
+    /* ════════════════════════════════════════
+       ESTADOS VACÍOS
+    ════════════════════════════════════════ */
+    .vacio {
+      text-align: center; padding: 2rem 1rem; color: var(--muted);
     }
-    .resumen-fila {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      margin-bottom: .6rem;
-    }
-    .resumen-fila:last-child { margin-bottom: 0; }
-    .resumen-label { font-size: .75rem; color: var(--text-muted); flex: 1; }
-    .resumen-barra-wrap {
-      flex: 2;
-      background: rgba(255,255,255,.06);
-      border-radius: 99px;
-      height: 6px;
-      overflow: hidden;
-    }
-    .resumen-barra {
-      height: 100%;
-      border-radius: 99px;
-      transition: width .8s ease;
-    }
-    .resumen-pct { font-size: .75rem; font-weight: 700; min-width: 36px; text-align: right; }
-
-    /* ── SKELETON / ESTADO VACÍO ── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--card-brd) 25%, rgba(255,255,255,.05) 50%, var(--card-brd) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 4px;
-    }
-    @keyframes shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    .sin-datos {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--text-muted);
-    }
-    .sin-datos i { font-size: 2rem; display: block; margin-bottom: .5rem; }
+    .vacio i { font-size: 1.8rem; display: block; margin-bottom: .5rem; opacity: .5; }
+    .vacio p { font-size: .82rem; }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ─────────────────────────────────────────── -->
+<!-- ═══════ NAVBAR ═══════════════════════════════════════ -->
 <nav class="navbar">
-  <span class="navbar-brand">⚡ SENRG7</span>
-  <span class="navbar-sep"></span>
+  <a class="nav-brand" href="/dashboard">
+    <i class="bi bi-lightning-charge-fill"></i> SENRG7
+  </a>
+  <span class="nav-sep"></span>
 
-  <div class="ws-indicator">
+  <div class="ws-pill">
     <span class="ws-dot" id="wsDot"></span>
-    <span id="wsLabel">Desconectado</span>
+    <span id="wsLabel">Conectando</span>
   </div>
 
+  <button class="btn-nav" data-btn-tema title="Cambiar tema">
+    <i class="bi bi-sun"></i>
+  </button>
   <a href="/configuracion" class="btn-nav">
     <i class="bi bi-gear"></i> Config
   </a>
@@ -370,482 +343,390 @@
   </form>
 </nav>
 
-<!-- ── CONTENIDO PRINCIPAL ────────────────────────────── -->
-<main class="main">
+<!-- ═══════ CONTENIDO ════════════════════════════════════ -->
+<div class="page">
 
-  <!-- Columna izquierda: máquinas -->
+  <!-- Columna izquierda: tarjetas de máquinas -->
   <div>
-    <div class="seccion-titulo">
-      <i class="bi bi-cpu"></i> Máquinas en tiempo real
+    <div class="sec-label">
+      <i class="bi bi-cpu"></i> Máquinas — tiempo real
     </div>
     <div class="maquinas-grid" id="maquinasGrid">
-      <div class="sin-datos">
+      <div class="vacio" style="grid-column:1/-1">
         <i class="bi bi-hourglass-split"></i>
-        Cargando máquinas...
+        <p>Cargando máquinas...</p>
       </div>
     </div>
   </div>
 
-  <!-- Columna derecha: eventos + resumen -->
-  <div class="panel-eventos">
+  <!-- Columna derecha: resumen + eventos -->
+  <div class="col-derecha">
 
     <!-- Resumen del día -->
-    <div class="card-resumen" id="cardResumen">
-      <div class="seccion-titulo" style="margin-bottom:.75rem">
+    <div class="panel">
+      <div class="sec-label" style="margin-bottom:.75rem">
         <i class="bi bi-bar-chart-line"></i> Resumen hoy
       </div>
       <div id="resumenContenido">
-        <div class="sin-datos" style="padding:1rem">
-          <i class="bi bi-hourglass-split"></i>
-          Sin datos aún
+        <div class="vacio" style="padding:.5rem 0">
+          <i class="bi bi-clock-history"></i>
+          <p>Sin datos todavía</p>
         </div>
       </div>
     </div>
 
     <!-- Log de eventos -->
-    <div class="eventos-lista">
-      <div class="seccion-titulo" style="margin-bottom:.75rem">
+    <div class="panel" style="flex:1">
+      <div class="sec-label" style="margin-bottom:.75rem">
         <i class="bi bi-activity"></i> Eventos recientes
       </div>
       <div class="eventos-scroll" id="eventosScroll">
-        <div class="sin-datos">
+        <div class="vacio">
           <i class="bi bi-inbox"></i>
-          Sin eventos
+          <p>Sin eventos</p>
         </div>
       </div>
     </div>
 
   </div>
-</main>
+</div><!-- /.page -->
 
 <script>
-// ════════════════════════════════════════════════════════
-//  ESTADO GLOBAL
-// ════════════════════════════════════════════════════════
-const maquinas  = {};   // {id: {datos, chart, historialCorreinte[]}}
-const MAX_PUNTOS = 60;  // puntos en el gráfico (60 segundos)
+// ═══════════════════════════════════════════════════════
+//  CONSTANTES Y ESTADO
+// ═══════════════════════════════════════════════════════
+const MAX_PTS = 60;
+const maquinas = {};
 
-// ════════════════════════════════════════════════════════
-//  UTILIDADES
-// ════════════════════════════════════════════════════════
-const COLOR_ESTADO = {
-  APAGADA:    '#475569',
-  ENCENDIDA:  '#f59e0b',
-  BORDANDO:   '#00c896',
-  SOBRECARGA: '#ef4444',
-  SIN_DATOS:  '#334155',
+const COL = {
+  APAGADA:    getComputedStyle(document.documentElement).getPropertyValue('--st-apagada').trim()    || '#64748b',
+  ENCENDIDA:  getComputedStyle(document.documentElement).getPropertyValue('--st-encendida').trim()  || '#f59e0b',
+  BORDANDO:   getComputedStyle(document.documentElement).getPropertyValue('--st-bordando').trim()   || '#10b981',
+  SOBRECARGA: getComputedStyle(document.documentElement).getPropertyValue('--st-sobrecarga').trim() || '#ef4444',
+  SIN_DATOS:  getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()         || '#64748b',
 };
 
-const ICONO_EVENTO = {
-  ROTURA_HILO:   { clase: 'icono-ROTURA_HILO',   icon: 'bi-scissors' },
-  SOBRECARGA:    { clase: 'icono-SOBRECARGA',     icon: 'bi-lightning-charge' },
-  CAMBIO_ESTADO: { clase: 'icono-CAMBIO_ESTADO',  icon: 'bi-arrow-left-right' },
-  INICIO:        { clase: 'icono-INICIO',         icon: 'bi-play-circle' },
-  PAUSA:         { clase: 'icono-PAUSA',          icon: 'bi-pause-circle' },
-  FIN:           { clase: 'icono-INICIO',         icon: 'bi-stop-circle' },
-};
-
-function fmtAmperes(a) {
-  if (a === null || a === undefined) return '—';
-  return parseFloat(a).toFixed(2);
+function getColor(estado) {
+  // Releer del DOM en cada llamada para respetar el tema activo
+  const r = getComputedStyle(document.documentElement);
+  const map = {
+    APAGADA:    r.getPropertyValue('--st-apagada').trim(),
+    ENCENDIDA:  r.getPropertyValue('--st-encendida').trim(),
+    BORDANDO:   r.getPropertyValue('--st-bordando').trim(),
+    SOBRECARGA: r.getPropertyValue('--st-sobrecarga').trim(),
+  };
+  return map[estado] || r.getPropertyValue('--muted').trim();
 }
 
-function fmtHora(ts) {
+const EV_ICON = {
+  ROTURA_HILO:   { cls: 'ev-ROTURA_HILO',   icon: 'bi-scissors' },
+  SOBRECARGA:    { cls: 'ev-SOBRECARGA',     icon: 'bi-lightning-charge' },
+  CAMBIO_ESTADO: { cls: 'ev-CAMBIO_ESTADO',  icon: 'bi-arrow-left-right' },
+  INICIO:        { cls: 'ev-INICIO',         icon: 'bi-play-circle' },
+  PAUSA:         { cls: 'ev-PAUSA',          icon: 'bi-pause-circle' },
+};
+
+// ═══════════════════════════════════════════════════════
+//  FORMATO
+// ═══════════════════════════════════════════════════════
+const fmtA   = v => (v === null || v === undefined) ? '—' : parseFloat(v).toFixed(2);
+const fmtSeg = s => { s = s || 0; return `${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,'0')}m`; };
+const fmtHora = ts => {
   if (!ts) return '';
-  try {
-    const d = new Date(ts.replace(' ', 'T') + 'Z');
-    return d.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  } catch { return ts; }
-}
+  try { return new Date(ts.replace(' ','T')+'Z').toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+  catch { return ts; }
+};
 
-function fmtSeg(s) {
-  if (!s) return '0h 00m';
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  return `${h}h ${String(m).padStart(2, '0')}m`;
-}
-
-// ════════════════════════════════════════════════════════
-//  CARGA INICIAL DE MÁQUINAS
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  CARGAR MÁQUINAS Y CREAR TARJETAS
+// ═══════════════════════════════════════════════════════
 async function cargarMaquinas() {
-  try {
-    const resp = await fetch('/api/maquinas');
-    if (resp.status === 401) { location.href = '/login'; return; }
-    const lista = await resp.json();
+  const resp = await fetch('/api/maquinas');
+  if (resp.status === 401) { location.href='/login'; return; }
+  const lista = await resp.json();
 
-    if (!lista.length) {
-      document.getElementById('maquinasGrid').innerHTML =
-        '<div class="sin-datos"><i class="bi bi-exclamation-circle"></i>No hay máquinas activas en config.json</div>';
-      return;
-    }
-
-    const grid = document.getElementById('maquinasGrid');
-    grid.innerHTML = '';
-
-    for (const m of lista) {
-      crearTarjetaMaquina(m);
-    }
-
-    // Cargar historial de corriente para el gráfico inicial
-    for (const m of lista) {
-      await cargarHistorial(m.id);
-    }
-
-  } catch (err) {
-    console.error('Error cargando máquinas:', err);
+  const grid = document.getElementById('maquinasGrid');
+  if (!lista.length) {
+    grid.innerHTML = '<div class="vacio" style="grid-column:1/-1"><i class="bi bi-exclamation-circle"></i><p>No hay máquinas activas en config.json</p></div>';
+    return;
   }
+  grid.innerHTML = '';
+  for (const m of lista) crearTarjeta(m);
+  for (const m of lista) await cargarHistorial(m.id);
 }
 
-function crearTarjetaMaquina(m) {
-  const grid  = document.getElementById('maquinasGrid');
-  const color = COLOR_ESTADO[m.estado] || COLOR_ESTADO.SIN_DATOS;
-
-  const card = document.createElement('div');
-  card.className = 'maquina-card';
-  card.id = `maquina-${m.id}`;
+function crearTarjeta(m) {
+  const color = getColor(m.estado);
+  const card  = document.createElement('div');
+  card.className = 'maq-card';
+  card.id = `maq-${m.id}`;
   card.style.setProperty('--estado-color', color);
-
   card.innerHTML = `
-    <div class="card-header">
-      <div>
-        <div class="card-nombre">${m.nombre}</div>
-        <div class="card-desc">${m.descripcion || ''}</div>
+    <div class="maq-estado-bar" id="bar-${m.id}"></div>
+    <div class="maq-body">
+      <div class="maq-header">
+        <div>
+          <div class="maq-nombre">${m.nombre}</div>
+          <div class="maq-desc">${m.descripcion||''}</div>
+        </div>
+        <span class="badge badge-${m.estado}" id="badge-${m.id}">${m.estado}</span>
       </div>
-      <span class="badge-estado badge-${m.estado}" id="badge-${m.id}">${m.estado}</span>
-    </div>
-
-    <div>
-      <span class="corriente-valor" id="amp-${m.id}">${fmtAmperes(m.corriente)}</span>
-      <span class="corriente-unidad">A</span>
-    </div>
-
-    <div class="grafico-wrap">
-      <canvas id="chart-${m.id}" height="64"></canvas>
-    </div>
-
-    <div class="card-stats">
-      <div class="stat">
-        <div class="stat-valor" id="stat-efic-${m.id}">—</div>
-        <div class="stat-label">Eficiencia</div>
+      <div class="maq-corriente">
+        <span class="corriente-num" id="amp-${m.id}">${fmtA(m.corriente)}</span>
+        <span class="corriente-unit">A</span>
       </div>
-      <div class="stat">
-        <div class="stat-valor" id="stat-bord-${m.id}">—</div>
-        <div class="stat-label">Bordando hoy</div>
+      <div class="maq-chart"><canvas id="chart-${m.id}" height="60"></canvas></div>
+      <div class="maq-stats">
+        <div class="stat">
+          <div class="stat-val" id="ef-${m.id}">—</div>
+          <div class="stat-lbl">Eficiencia</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="brd-${m.id}">—</div>
+          <div class="stat-lbl">Bordando</div>
+        </div>
+        <div class="stat stat-roturas">
+          <div class="stat-val" id="rot-${m.id}">${m.roturas_hoy??0}</div>
+          <div class="stat-lbl">Roturas</div>
+        </div>
       </div>
-      <div class="stat stat-roturas">
-        <div class="stat-valor" id="stat-rot-${m.id}">${m.roturas_hoy ?? 0}</div>
-        <div class="stat-label">Roturas hoy</div>
+      <div class="maq-ts">
+        <i class="bi bi-clock" style="font-size:.65rem"></i>
+        <span id="ts-${m.id}">${m.ultima_lectura ? fmtHora(m.ultima_lectura) : 'Sin datos'}</span>
       </div>
-    </div>
+    </div>`;
+  document.getElementById('maquinasGrid').appendChild(card);
 
-    <div class="ultima-act">
-      <i class="bi bi-clock"></i>
-      <span id="ts-${m.id}">${m.ultima_lectura ? fmtHora(m.ultima_lectura) : 'Sin datos'}</span>
-    </div>
-  `;
-  grid.appendChild(card);
-
-  // Inicializar Chart.js
-  const ctx = document.getElementById(`chart-${m.id}`).getContext('2d');
+  const ctx   = document.getElementById(`chart-${m.id}`).getContext('2d');
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: new Array(MAX_PUNTOS).fill(''),
+      labels: Array(MAX_PTS).fill(''),
       datasets: [{
-        data: new Array(MAX_PUNTOS).fill(null),
-        borderColor: color,
-        borderWidth: 1.5,
-        fill: true,
-        backgroundColor: color + '18',
-        tension: 0.3,
-        pointRadius: 0,
-        pointHoverRadius: 3,
+        data: Array(MAX_PTS).fill(null),
+        borderColor: color, borderWidth: 1.5,
+        fill: true, backgroundColor: color+'22',
+        tension: 0.35, pointRadius: 0,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       animation: false,
-      interaction: { intersect: false },
       scales: {
         x: { display: false },
         y: {
-          display: true,
-          beginAtZero: true,
-          grid:  { color: 'rgba(255,255,255,.05)', drawBorder: false },
-          ticks: { color: '#475569', font: { size: 9 }, maxTicksLimit: 4 },
+          display: true, beginAtZero: true,
+          grid:  { color: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim() },
+          ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(), font:{size:9}, maxTicksLimit:3 },
         }
       },
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      plugins: { legend:{display:false}, tooltip:{enabled:false} },
     }
   });
-
-  maquinas[m.id] = { datos: m, chart, historial: [] };
+  maquinas[m.id] = { chart, hist: [] };
 }
 
 async function cargarHistorial(id) {
-  try {
-    const resp = await fetch(`/api/maquinas/${id}/lecturas?minutos=1`);
-    if (!resp.ok) return;
-    const data = await resp.json();
-
-    const m = maquinas[id];
-    if (!m) return;
-
-    // Poblar historial con las lecturas existentes
-    for (const l of data.lecturas) {
-      m.historial.push(l.corriente);
-      if (m.historial.length > MAX_PUNTOS) m.historial.shift();
-    }
-    actualizarGrafico(id);
-  } catch (err) {
-    console.error(`Error cargando historial M${id}:`, err);
-  }
+  const resp = await fetch(`/api/maquinas/${id}/lecturas?minutos=1`);
+  if (!resp.ok) return;
+  const data = await resp.json();
+  const m = maquinas[id]; if (!m) return;
+  for (const l of data.lecturas) { m.hist.push(l.corriente); if (m.hist.length>MAX_PTS) m.hist.shift(); }
+  renderGrafico(id);
 }
 
-// ════════════════════════════════════════════════════════
-//  ACTUALIZACIÓN DE TARJETA
-// ════════════════════════════════════════════════════════
-function actualizarTarjeta(lectura) {
-  const id     = lectura.maquina_id;
-  const m      = maquinas[id];
-  if (!m) return;
+// ═══════════════════════════════════════════════════════
+//  ACTUALIZAR TARJETA (desde WebSocket)
+// ═══════════════════════════════════════════════════════
+function actualizarTarjeta(msg) {
+  const id  = msg.maquina_id;
+  const m   = maquinas[id]; if (!m) return;
+  const amp = parseFloat(msg.corriente ?? 0);
+  const est = msg.estado || 'SIN_DATOS';
+  const col = getColor(est);
 
-  const estado    = lectura.estado || 'SIN_DATOS';
-  const corriente = parseFloat(lectura.corriente ?? 0);
-  const color     = COLOR_ESTADO[estado] || COLOR_ESTADO.SIN_DATOS;
+  document.getElementById(`amp-${id}`).textContent   = fmtA(amp);
+  document.getElementById(`amp-${id}`).style.color   = col;
+  document.getElementById(`badge-${id}`).textContent = est;
+  document.getElementById(`badge-${id}`).className   = `badge badge-${est}`;
+  if (msg.ts) document.getElementById(`ts-${id}`).textContent = new Date(msg.ts*1000).toLocaleTimeString('es-BO');
 
-  // Actualizar valores de texto
-  const ampEl = document.getElementById(`amp-${id}`);
-  if (ampEl) {
-    ampEl.textContent = fmtAmperes(corriente);
-    ampEl.style.color = color;
-  }
+  const card = document.getElementById(`maq-${id}`);
+  if (card) card.style.setProperty('--estado-color', col);
 
-  const badgeEl = document.getElementById(`badge-${id}`);
-  if (badgeEl) {
-    badgeEl.textContent  = estado;
-    badgeEl.className    = `badge-estado badge-${estado}`;
-  }
+  document.getElementById(`bar-${id}`).style.background = col;
 
-  const tsEl = document.getElementById(`ts-${id}`);
-  if (tsEl && lectura.ts) {
-    tsEl.textContent = new Date(lectura.ts * 1000).toLocaleTimeString('es-BO');
-  }
-
-  // Actualizar borde de color de la tarjeta
-  const card = document.getElementById(`maquina-${id}`);
-  if (card) card.style.setProperty('--estado-color', color);
-
-  // Actualizar color de la línea del gráfico
   if (m.chart) {
-    m.chart.data.datasets[0].borderColor      = color;
-    m.chart.data.datasets[0].backgroundColor  = color + '18';
+    m.chart.data.datasets[0].borderColor     = col;
+    m.chart.data.datasets[0].backgroundColor = col+'22';
   }
-
-  // Agregar punto al historial
-  m.historial.push(corriente);
-  if (m.historial.length > MAX_PUNTOS) m.historial.shift();
-  actualizarGrafico(id);
+  m.hist.push(amp);
+  if (m.hist.length > MAX_PTS) m.hist.shift();
+  renderGrafico(id);
 }
 
-function actualizarGrafico(id) {
-  const m = maquinas[id];
-  if (!m || !m.chart) return;
-  const datos = m.historial;
-  const relleno = new Array(Math.max(0, MAX_PUNTOS - datos.length)).fill(null);
-  m.chart.data.datasets[0].data = [...relleno, ...datos];
+function renderGrafico(id) {
+  const m = maquinas[id]; if (!m?.chart) return;
+  const pad  = Array(Math.max(0, MAX_PTS - m.hist.length)).fill(null);
+  m.chart.data.datasets[0].data = [...pad, ...m.hist];
+  // Actualizar colores del grid según tema actual
+  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
+  const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+  m.chart.options.scales.y.grid.color  = gridColor;
+  m.chart.options.scales.y.ticks.color = tickColor;
   m.chart.update('none');
 }
 
-// ════════════════════════════════════════════════════════
-//  EVENTOS — LOG EN TIEMPO REAL
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  EVENTOS
+// ═══════════════════════════════════════════════════════
 async function cargarEventos() {
-  try {
-    const resp = await fetch('/api/eventos?limite=30');
-    if (!resp.ok) return;
-    const eventos = await resp.json();
-    const scroll  = document.getElementById('eventosScroll');
-    scroll.innerHTML = '';
-    for (const e of eventos) agregarEventoDOM(e, false);
-  } catch (err) {
-    console.error('Error cargando eventos:', err);
-  }
+  const resp = await fetch('/api/eventos?limite=30');
+  if (!resp.ok) return;
+  const lista = await resp.json();
+  const scroll = document.getElementById('eventosScroll');
+  scroll.innerHTML = '';
+  for (const e of lista) agregarEvento(e, false);
 }
 
-function agregarEventoDOM(e, prepend = true) {
+function agregarEvento(e, prepend=true) {
   const scroll = document.getElementById('eventosScroll');
+  const sv = scroll.querySelector('.vacio');
+  if (sv) sv.remove();
 
-  // Quitar mensaje "sin eventos"
-  const sinDatos = scroll.querySelector('.sin-datos');
-  if (sinDatos) sinDatos.remove();
+  const info = EV_ICON[e.tipo] || { cls:'ev-default', icon:'bi-info-circle' };
+  const mNombre = e.maquina || `M${e.maquina_id}`;
+  const hora    = e.timestamp ? fmtHora(e.timestamp) : '';
 
-  const info = ICONO_EVENTO[e.tipo] || { clase: 'icono-default', icon: 'bi-info-circle' };
-
-  const item = document.createElement('div');
-  item.className = 'evento-item';
-  item.innerHTML = `
-    <div class="evento-icono ${info.clase}"><i class="bi ${info.icon}"></i></div>
-    <div class="evento-body">
-      <div class="evento-tipo">${e.tipo.replace(/_/g, ' ')}</div>
-      <div class="evento-desc">${e.descripcion || ''}</div>
-      <div class="evento-meta">
-        <i class="bi bi-cpu" style="font-size:.65rem"></i> ${e.maquina || `M${e.maquina_id}`}
-        &nbsp;·&nbsp;
-        <i class="bi bi-clock" style="font-size:.65rem"></i>
-        ${e.timestamp ? fmtHora(e.timestamp) : ''}
-      </div>
-    </div>
-  `;
+  const el = document.createElement('div');
+  el.className = 'ev-item';
+  el.innerHTML = `
+    <div class="ev-icon ${info.cls}"><i class="bi ${info.icon}"></i></div>
+    <div class="ev-body">
+      <div class="ev-tipo">${e.tipo.replace(/_/g,' ')}</div>
+      <div class="ev-desc">${e.descripcion||''}</div>
+      <div class="ev-meta">${mNombre} · ${hora}</div>
+    </div>`;
 
   if (prepend && scroll.firstChild) {
-    scroll.insertBefore(item, scroll.firstChild);
-    // Limitar a 50 eventos en pantalla
+    scroll.insertBefore(el, scroll.firstChild);
     while (scroll.children.length > 50) scroll.removeChild(scroll.lastChild);
   } else {
-    scroll.appendChild(item);
+    scroll.appendChild(el);
   }
 }
 
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  RESUMEN DEL DÍA
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 async function cargarResumen() {
-  try {
-    const resp = await fetch('/api/resumen');
-    if (!resp.ok) return;
-    const data  = await resp.json();
-    const cont  = document.getElementById('resumenContenido');
+  const resp = await fetch('/api/resumen');
+  if (!resp.ok) return;
+  const lista = await resp.json();
+  const cont  = document.getElementById('resumenContenido');
+  if (!lista.length) { cont.innerHTML = '<div class="vacio" style="padding:.25rem 0"><p>Sin datos hoy</p></div>'; return; }
 
-    if (!data.length) {
-      cont.innerHTML = '<div class="sin-datos" style="padding:.5rem">Sin datos hoy</div>';
-      return;
-    }
+  cont.innerHTML = '';
+  const colMap = {
+    bordando:  getColor('BORDANDO'),
+    encendida: getColor('ENCENDIDA'),
+    apagada:   getColor('APAGADA'),
+  };
 
-    cont.innerHTML = '';
-    for (const r of data) {
-      const m = maquinas[r.maquina_id];
-      const nombre = m ? m.datos.nombre : `Máquina ${r.maquina_id}`;
-      const totalSeg = (r.seg_bordando + r.seg_encendida + r.seg_apagada + r.seg_sobrecarga) || 1;
+  for (const r of lista) {
+    const m      = maquinas[r.maquina_id];
+    const nombre = m ? document.getElementById(`maq-${r.maquina_id}`)?.querySelector('.maq-nombre')?.textContent : `Máquina ${r.maquina_id}`;
+    const total  = (r.seg_bordando+r.seg_encendida+r.seg_apagada+r.seg_sobrecarga) || 1;
+    const pct    = v => Math.round(v/total*100);
 
-      cont.innerHTML += `
-        <div style="margin-bottom:1rem">
-          <div style="font-size:.78rem;font-weight:600;margin-bottom:.5rem">${nombre}</div>
-          <div class="resumen-fila">
-            <span class="resumen-label" style="color:var(--col-bordando)">Bordando</span>
-            <div class="resumen-barra-wrap">
-              <div class="resumen-barra" style="width:${r.seg_bordando/totalSeg*100}%;background:var(--col-bordando)"></div>
-            </div>
-            <span class="resumen-pct" style="color:var(--col-bordando)">${fmtSeg(r.seg_bordando)}</span>
-          </div>
-          <div class="resumen-fila">
-            <span class="resumen-label" style="color:var(--col-encendida)">Encendida</span>
-            <div class="resumen-barra-wrap">
-              <div class="resumen-barra" style="width:${r.seg_encendida/totalSeg*100}%;background:var(--col-encendida)"></div>
-            </div>
-            <span class="resumen-pct" style="color:var(--col-encendida)">${fmtSeg(r.seg_encendida)}</span>
-          </div>
-          <div class="resumen-fila">
-            <span class="resumen-label">Apagada</span>
-            <div class="resumen-barra-wrap">
-              <div class="resumen-barra" style="width:${r.seg_apagada/totalSeg*100}%;background:var(--col-apagada)"></div>
-            </div>
-            <span class="resumen-pct">${fmtSeg(r.seg_apagada)}</span>
-          </div>
-          <div style="font-size:.75rem;margin-top:.35rem;color:var(--text-muted)">
-            Eficiencia: <strong style="color:var(--col-bordando)">${r.eficiencia_pct}%</strong>
-            &nbsp;·&nbsp;
-            Roturas: <strong style="color:#f87171">${r.roturas_hilo}</strong>
-          </div>
-        </div>
-      `;
+    const div = document.createElement('div');
+    div.className = 'resumen-maq';
+    div.innerHTML = `
+      <div class="resumen-nombre">${nombre||`Máquina ${r.maquina_id}`}</div>
+      <div class="resumen-row">
+        <span class="resumen-lbl" style="color:${colMap.bordando}">Bordando</span>
+        <div class="resumen-track"><div class="resumen-fill" style="width:${pct(r.seg_bordando)}%;background:${colMap.bordando}"></div></div>
+        <span class="resumen-val" style="color:${colMap.bordando}">${fmtSeg(r.seg_bordando)}</span>
+      </div>
+      <div class="resumen-row">
+        <span class="resumen-lbl" style="color:${colMap.encendida}">Encendida</span>
+        <div class="resumen-track"><div class="resumen-fill" style="width:${pct(r.seg_encendida)}%;background:${colMap.encendida}"></div></div>
+        <span class="resumen-val" style="color:${colMap.encendida}">${fmtSeg(r.seg_encendida)}</span>
+      </div>
+      <div class="resumen-row">
+        <span class="resumen-lbl" style="color:${colMap.apagada}">Apagada</span>
+        <div class="resumen-track"><div class="resumen-fill" style="width:${pct(r.seg_apagada)}%;background:${colMap.apagada}"></div></div>
+        <span class="resumen-val">${fmtSeg(r.seg_apagada)}</span>
+      </div>
+      <div class="resumen-meta">
+        Eficiencia: <span style="color:${colMap.bordando}">${r.eficiencia_pct}%</span>
+        &nbsp;·&nbsp; Roturas: <span style="color:${getColor('SOBRECARGA')}">${r.roturas_hilo}</span>
+      </div>`;
+    cont.appendChild(div);
 
-      // Actualizar stats en la tarjeta de la máquina
-      const eficEl = document.getElementById(`stat-efic-${r.maquina_id}`);
-      const bordEl = document.getElementById(`stat-bord-${r.maquina_id}`);
-      const rotEl  = document.getElementById(`stat-rot-${r.maquina_id}`);
-      if (eficEl) eficEl.textContent = `${r.eficiencia_pct}%`;
-      if (bordEl) bordEl.textContent = fmtSeg(r.seg_bordando);
-      if (rotEl)  rotEl.textContent  = r.roturas_hilo;
-    }
-  } catch (err) {
-    console.error('Error cargando resumen:', err);
+    // Actualizar stats en la tarjeta
+    const ef  = document.getElementById(`ef-${r.maquina_id}`);
+    const brd = document.getElementById(`brd-${r.maquina_id}`);
+    const rot = document.getElementById(`rot-${r.maquina_id}`);
+    if (ef)  ef.textContent  = `${r.eficiencia_pct}%`;
+    if (brd) brd.textContent = fmtSeg(r.seg_bordando);
+    if (rot) rot.textContent = r.roturas_hilo;
   }
 }
 
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  WEBSOCKET
-// ════════════════════════════════════════════════════════
-let ws = null;
-let wsReconectando = false;
-let wsIntento = 0;
+// ═══════════════════════════════════════════════════════
+let ws, wsIntento = 0;
 
 function conectarWS() {
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const proto = location.protocol==='https:'?'wss':'ws';
   ws = new WebSocket(`${proto}://${location.host}/ws`);
 
   ws.onopen = () => {
     wsIntento = 0;
-    wsReconectando = false;
-    document.getElementById('wsDot').className   = 'ws-dot conectado';
+    document.getElementById('wsDot').className   = 'ws-dot on';
     document.getElementById('wsLabel').textContent = 'En línea';
-    // Ping periódico para mantener la conexión viva
-    ws._pingInterval = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) ws.send('ping');
-    }, 30000);
+    ws._ping = setInterval(()=>{ if(ws.readyState===1) ws.send('ping'); }, 25000);
   };
 
-  ws.onmessage = (e) => {
+  ws.onmessage = e => {
     try {
       const msg = JSON.parse(e.data);
-      if (msg.tipo === 'lectura') {
-        actualizarTarjeta(msg);
-      } else if (msg.tipo === 'evento') {
-        agregarEventoDOM({
-          maquina_id:  msg.maquina_id,
-          tipo:        msg.tipo_evento || msg.tipo,
-          descripcion: msg.descripcion || '',
-          timestamp:   msg.ts ? new Date(msg.ts * 1000).toISOString() : '',
-        });
-      }
-    } catch (err) {
-      console.warn('Mensaje WS inválido:', e.data);
-    }
+      if (msg.tipo === 'lectura') actualizarTarjeta(msg);
+      else if (msg.tipo === 'evento') agregarEvento({
+        maquina_id:  msg.maquina_id,
+        tipo:        msg.tipo_evento || msg.tipo,
+        descripcion: msg.descripcion || '',
+        timestamp:   msg.ts ? new Date(msg.ts*1000).toISOString().replace('T',' ').slice(0,19) : '',
+      });
+    } catch {}
   };
 
-  ws.onclose = (e) => {
-    clearInterval(ws._pingInterval);
-    document.getElementById('wsDot').className    = 'ws-dot';
-    document.getElementById('wsLabel').textContent = 'Reconectando...';
-    if (e.code === 4001) {
-      // Sesión inválida → ir al login
-      location.href = '/login';
-      return;
-    }
-    // Reconexión con backoff exponencial (máx 30s)
-    if (!wsReconectando) {
-      wsReconectando = true;
-      wsIntento++;
-      const delay = Math.min(1000 * Math.pow(2, wsIntento - 1), 30000);
-      setTimeout(conectarWS, delay);
-    }
+  ws.onclose = e => {
+    clearInterval(ws._ping);
+    document.getElementById('wsDot').className    = 'ws-dot err';
+    document.getElementById('wsLabel').textContent = e.code===4001 ? 'Sin sesión' : 'Reconectando...';
+    if (e.code === 4001) { location.href='/login'; return; }
+    const delay = Math.min(1000*Math.pow(2, wsIntento++), 30000);
+    setTimeout(conectarWS, delay);
   };
-
   ws.onerror = () => ws.close();
 }
 
-// ════════════════════════════════════════════════════════
-//  INICIALIZACIÓN
-// ════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
 (async function init() {
-  await cargarMaquinas();
-  await Promise.all([cargarEventos(), cargarResumen()]);
-  conectarWS();
-
-  // Actualizar resumen cada 60 segundos
-  setInterval(cargarResumen, 60_000);
+  try {
+    await cargarMaquinas();
+    await Promise.all([cargarEventos(), cargarResumen()]);
+    conectarWS();
+    setInterval(cargarResumen, 60_000);
+  } catch (err) {
+    console.error('Error init:', err);
+    if (err?.message?.includes('401')) location.href = '/login';
+  }
 })();
 </script>
 </body>

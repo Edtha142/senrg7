@@ -10,7 +10,7 @@
     "duracion_sesion_horas": 8
   },
   "red": {
-    "mqtt_broker": "localhost",
+    "mqtt_broker": "192.168.0.12",
     "mqtt_puerto": 1883,
     "mqtt_usuario": "",
     "mqtt_password": "",
@@ -26,7 +26,7 @@
       "nombre": "Bordadora 1",
       "descripcion": "Máquina bordadora principal — línea A",
       "activa": true,
-      "factor_calibracion": 30.0
+      "factor_calibracion": 60.6
     }
   ],
   "umbrales": {

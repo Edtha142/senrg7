@@ -1,823 +1,631 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SENRG7 — Configuración</title>
+  <script src="/theme.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0a0e1a;
-      --card:     #111827;
-      --brd:      #1e2a45;
-      --accent:   #00c896;
-      --text:     #e2e8f0;
+      --bg:       #0f172a;
+      --bg2:      #1e293b;
+      --card:     #1e293b;
+      --brd:      #334155;
+      --brd2:     #3f526b;
+      --accent:   #10b981;
+      --text:     #f1f5f9;
+      --text2:    #cbd5e1;
       --muted:    #64748b;
       --danger:   #ef4444;
-      --navbar-h: 56px;
+      --navbar-h: 58px;
+      --shadow:   0 2px 12px rgba(0,0,0,.3);
+    }
+    [data-theme="light"] {
+      --bg:     #f1f5f9;
+      --bg2:    #e2e8f0;
+      --card:   #ffffff;
+      --brd:    #e2e8f0;
+      --brd2:   #cbd5e1;
+      --accent: #059669;
+      --text:   #0f172a;
+      --text2:  #334155;
+      --muted:  #64748b;
+      --danger: #dc2626;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
     }
 
     html, body { min-height: 100%; }
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       font-family: 'Segoe UI', system-ui, sans-serif;
       font-size: 14px;
+      transition: background .25s, color .25s;
     }
 
     /* ── NAVBAR ── */
     .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+      position: fixed; top: 0; left: 0; right: 0;
       height: var(--navbar-h);
-      background: rgba(17,24,39,.96);
+      background: var(--card);
       border-bottom: 1px solid var(--brd);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      padding: 0 1.5rem;
-      gap: 1rem;
-      z-index: 100;
+      display: flex; align-items: center;
+      padding: 0 1.25rem; gap: .75rem;
+      z-index: 100; box-shadow: var(--shadow);
     }
-    .navbar-brand {
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: .1em;
-      background: linear-gradient(90deg, #00c896, #4fc3f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .nav-brand {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: 1.1rem; font-weight: 800; letter-spacing: .08em;
+      color: var(--accent); text-decoration: none;
     }
-    .navbar-sep { flex: 1; }
+    .nav-brand i { font-size: 1.3rem; }
+    .nav-sep { flex: 1; }
     .btn-nav {
-      background: transparent;
-      border: 1px solid var(--brd);
-      border-radius: 8px;
-      color: var(--muted);
-      padding: .35rem .75rem;
-      font-size: .82rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      transition: color .2s, border-color .2s;
+      background: transparent; border: 1px solid var(--brd);
+      border-radius: 8px; color: var(--muted);
+      padding: .35rem .75rem; font-size: .8rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .35rem;
       text-decoration: none;
+      transition: color .2s, border-color .2s, background .2s;
     }
-    .btn-nav:hover { color: var(--text); border-color: var(--accent); }
+    .btn-nav:hover { color: var(--text); border-color: var(--accent); background: var(--bg2); }
 
     /* ── LAYOUT ── */
     .page {
       margin-top: var(--navbar-h);
-      max-width: 860px;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 2rem 1.5rem 4rem;
+      max-width: 820px; margin-left: auto; margin-right: auto;
+      padding: 1.5rem 1.25rem 6rem;
     }
 
     .page-title {
-      font-size: 1.3rem;
-      font-weight: 800;
-      margin-bottom: 1.75rem;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
+      font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: .6rem; color: var(--text);
     }
     .page-title i { color: var(--accent); }
 
-    /* ── SECCIONES ── */
+    /* ── ACORDEÓN ── */
     .seccion {
-      background: var(--card);
-      border: 1px solid var(--brd);
-      border-radius: 14px;
-      margin-bottom: 1.25rem;
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--brd);
+      border-radius: 12px; margin-bottom: 1rem;
+      overflow: hidden; box-shadow: var(--shadow);
+      transition: background .25s;
     }
-    .seccion-header {
-      padding: 1rem 1.25rem;
+
+    .sec-hdr {
+      padding: .85rem 1.1rem;
+      display: flex; align-items: center; gap: .55rem;
       border-bottom: 1px solid var(--brd);
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      font-size: .8rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      cursor: pointer;
-      user-select: none;
+      cursor: pointer; user-select: none;
+      font-size: .75rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+      transition: background .15s;
     }
-    .seccion-header i.toggle {
-      margin-left: auto;
-      transition: transform .2s;
-    }
-    .seccion-header.collapsed i.toggle { transform: rotate(-90deg); }
-    .seccion-body {
-      padding: 1.25rem;
+    .sec-hdr:hover { background: var(--bg2); }
+    .sec-hdr i.ti { margin-left: auto; transition: transform .2s; }
+    .sec-hdr.cerrado i.ti { transform: rotate(-90deg); }
+
+    .sec-body {
+      padding: 1.1rem;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(210px,1fr));
+      gap: .9rem;
     }
-    .seccion-body.hidden { display: none; }
-    .seccion-body.full { grid-template-columns: 1fr; }
+    .sec-body.oculto { display: none; }
+    .sec-body.full   { grid-template-columns: 1fr; }
 
     /* ── CAMPOS ── */
-    .campo {
-      display: flex;
-      flex-direction: column;
-      gap: .4rem;
-    }
+    .campo { display: flex; flex-direction: column; gap: .35rem; }
     .campo.span2 { grid-column: span 2; }
 
-    label {
-      font-size: .72rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: .06em;
-      text-transform: uppercase;
+    .campo > label {
+      font-size: .7rem; font-weight: 700; color: var(--muted);
+      letter-spacing: .07em; text-transform: uppercase;
     }
+
     input[type="text"],
     input[type="number"],
     input[type="password"] {
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--brd);
-      border-radius: 8px;
-      padding: .6rem .85rem;
-      color: var(--text);
-      font-size: .9rem;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
+      background: var(--bg); border: 1px solid var(--brd);
+      border-radius: 8px; padding: .6rem .85rem;
+      color: var(--text); font-size: .88rem; outline: none;
+      transition: border-color .2s, box-shadow .2s, background .25s;
       width: 100%;
     }
     input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0,200,150,.12);
+      box-shadow: 0 0 0 3px rgba(16,185,129,.15);
     }
-
-    .campo-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .campo-toggle label { text-transform: none; font-size: .85rem; color: var(--text); letter-spacing: 0; }
+    input[readonly] { opacity: .5; cursor: default; }
 
     /* Toggle switch */
-    .switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
-    .switch input { display: none; }
-    .switch-slider {
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: .75rem;
+      padding: .5rem 0;
+    }
+    .toggle-row label { font-size: .85rem; color: var(--text2); cursor: pointer; }
+    .sw { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
+    .sw input { display: none; }
+    .sw-slider {
       position: absolute; inset: 0;
-      background: var(--brd);
-      border-radius: 99px;
-      cursor: pointer;
+      background: var(--brd2); border-radius: 99px; cursor: pointer;
       transition: background .2s;
     }
-    .switch-slider::before {
-      content: '';
-      position: absolute;
-      width: 16px; height: 16px;
-      top: 3px; left: 3px;
-      background: #fff;
-      border-radius: 50%;
+    .sw-slider::before {
+      content: ''; position: absolute;
+      width: 14px; height: 14px; top: 3px; left: 3px;
+      background: #fff; border-radius: 50%;
       transition: transform .2s;
     }
-    .switch input:checked + .switch-slider { background: var(--accent); }
-    .switch input:checked + .switch-slider::before { transform: translateX(18px); }
+    .sw input:checked + .sw-slider { background: var(--accent); }
+    .sw input:checked + .sw-slider::before { transform: translateX(18px); }
 
     /* ── MÁQUINAS DINÁMICAS ── */
-    .maquinas-lista { display: flex; flex-direction: column; gap: .75rem; }
+    .maq-lista { display: flex; flex-direction: column; gap: .65rem; }
 
-    .maquina-item {
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--brd);
-      border-radius: 10px;
-      padding: 1rem;
+    .maq-fila {
+      background: var(--bg2); border: 1px solid var(--brd);
+      border-radius: 10px; padding: .85rem;
       display: grid;
-      grid-template-columns: 60px 1fr 1fr 120px 40px;
-      gap: .75rem;
-      align-items: end;
+      grid-template-columns: 56px 1fr 1fr 110px 36px;
+      gap: .65rem; align-items: end;
+      transition: background .25s;
     }
-    @media (max-width: 600px) {
-      .maquina-item { grid-template-columns: 1fr 1fr; }
-    }
+    @media(max-width:600px){ .maq-fila{ grid-template-columns:1fr 1fr; } }
 
-    .btn-eliminar {
-      background: rgba(239,68,68,.1);
-      border: 1px solid rgba(239,68,68,.25);
-      border-radius: 8px;
-      color: #f87171;
-      cursor: pointer;
-      height: 36px;
-      width: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .btn-del {
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+      border-radius: 8px; color: var(--danger); cursor: pointer;
+      height: 34px; width: 34px;
+      display: flex; align-items: center; justify-content: center;
       transition: background .2s;
     }
-    .btn-eliminar:hover { background: rgba(239,68,68,.25); }
+    .btn-del:hover { background: rgba(239,68,68,.22); }
 
-    .btn-agregar {
-      background: rgba(0,200,150,.1);
-      border: 1px dashed rgba(0,200,150,.35);
-      border-radius: 10px;
-      color: var(--accent);
-      cursor: pointer;
-      padding: .75rem;
-      width: 100%;
-      font-size: .85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .4rem;
-      transition: background .2s;
-      margin-top: .25rem;
+    .btn-add {
+      background: rgba(16,185,129,.08);
+      border: 1px dashed rgba(16,185,129,.4);
+      border-radius: 10px; color: var(--accent); cursor: pointer;
+      padding: .7rem; width: 100%;
+      font-size: .83rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
+      transition: background .2s; margin-top: .25rem;
     }
-    .btn-agregar:hover { background: rgba(0,200,150,.18); }
+    .btn-add:hover { background: rgba(16,185,129,.16); }
 
-    /* ── BOTONES DE GUARDAR ── */
+    /* ── BARRA DE ACCIONES ── */
     .acciones {
-      position: sticky;
-      bottom: 0;
-      background: rgba(10,14,26,.92);
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card);
       border-top: 1px solid var(--brd);
-      padding: 1rem 1.5rem;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 0 -1.5rem -4rem;
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: .85rem;
+      z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+      transition: background .25s;
     }
 
     .btn-guardar {
-      background: linear-gradient(135deg, #00c896, #0088cc);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: .9rem;
-      font-weight: 700;
-      padding: .7rem 2rem;
-      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: .88rem; font-weight: 700;
+      padding: .65rem 1.75rem; cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
       transition: opacity .2s;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
     }
     .btn-guardar:hover    { opacity: .88; }
-    .btn-guardar:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-guardar:disabled { opacity: .45; cursor: not-allowed; }
 
-    .btn-cancelar {
-      background: transparent;
-      border: 1px solid var(--brd);
-      border-radius: 8px;
-      color: var(--muted);
-      font-size: .9rem;
-      padding: .7rem 1.5rem;
-      cursor: pointer;
+    .btn-cancel {
+      background: transparent; border: 1px solid var(--brd);
+      border-radius: 8px; color: var(--muted);
+      font-size: .88rem; padding: .65rem 1.25rem; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center;
       transition: color .2s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
     }
-    .btn-cancelar:hover { color: var(--text); }
+    .btn-cancel:hover { color: var(--text); }
 
-    /* ── TOAST DE NOTIFICACIÓN ── */
-    .toast {
-      position: fixed;
-      bottom: 80px;
-      right: 1.5rem;
-      padding: .85rem 1.25rem;
-      border-radius: 10px;
-      font-size: .88rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,.4);
-      transform: translateY(20px);
-      opacity: 0;
-      transition: transform .3s, opacity .3s;
-      pointer-events: none;
-      z-index: 200;
-    }
-    .toast.ok     { background: rgba(0,200,150,.2);  border: 1px solid rgba(0,200,150,.4);  color: #00c896; }
-    .toast.error  { background: rgba(239,68,68,.2);  border: 1px solid rgba(239,68,68,.4);  color: #f87171; }
-    .toast.visible { transform: translateY(0); opacity: 1; }
+    .status-txt { font-size: .78rem; color: var(--muted); margin-left: auto; }
 
-    /* ── SPINNER ── */
     .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
-      display: none;
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .55s linear infinite; display: none;
     }
-    .spinner.visible { display: block; }
+    .spinner.v { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 72px; right: 1.5rem;
+      padding: .75rem 1.1rem; border-radius: 10px;
+      font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity .3s, transform .3s;
+      pointer-events: none; z-index: 200;
+    }
+    .toast.ok    { background: rgba(16,185,129,.2);  border: 1px solid rgba(16,185,129,.4);  color: #34d399; }
+    .toast.error { background: rgba(239,68,68,.2);   border: 1px solid rgba(239,68,68,.4);   color: #f87171; }
+    .toast.show  { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
-  <span class="navbar-brand">⚡ SENRG7</span>
-  <span class="navbar-sep"></span>
+  <a class="nav-brand" href="/dashboard">
+    <i class="bi bi-lightning-charge-fill"></i> SENRG7
+  </a>
+  <span class="nav-sep"></span>
+  <button class="btn-nav" data-btn-tema title="Cambiar tema"><i class="bi bi-sun"></i></button>
   <a href="/dashboard" class="btn-nav"><i class="bi bi-grid"></i> Dashboard</a>
   <form action="/logout" method="POST" style="margin:0">
-    <button type="submit" class="btn-nav">
-      <i class="bi bi-box-arrow-right"></i> Salir
-    </button>
+    <button type="submit" class="btn-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
   </form>
 </nav>
 
-<!-- CONTENIDO -->
 <div class="page">
-  <div class="page-title">
-    <i class="bi bi-sliders"></i> Configuración del Sistema
-  </div>
+  <div class="page-title"><i class="bi bi-sliders"></i> Configuración del Sistema</div>
 
-  <!-- ── SISTEMA ── -->
+  <!-- SISTEMA -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-info-circle"></i> Sistema
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-sistema">
-      <div class="campo">
-        <label>Nombre del Sistema</label>
-        <input type="text" id="cfg-sistema-nombre">
-      </div>
-      <div class="campo">
-        <label>Versión</label>
-        <input type="text" id="cfg-sistema-version" readonly style="opacity:.5">
-      </div>
-      <div class="campo span2">
-        <label>Descripción</label>
-        <input type="text" id="cfg-sistema-descripcion">
-      </div>
+    <div class="sec-body" id="s-sistema">
+      <div class="campo"><label>Nombre</label><input type="text" id="c-sistema-nombre"></div>
+      <div class="campo"><label>Versión</label><input type="text" id="c-sistema-version" readonly></div>
+      <div class="campo span2"><label>Descripción</label><input type="text" id="c-sistema-descripcion"></div>
     </div>
   </div>
 
-  <!-- ── AUTENTICACIÓN ── -->
+  <!-- AUTENTICACIÓN -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-shield-lock"></i> Autenticación
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-auth">
-      <div class="campo">
-        <label>Usuario Administrador</label>
-        <input type="text" id="cfg-auth-usuario">
-      </div>
-      <div class="campo">
-        <label>Nueva Contraseña</label>
-        <input type="password" id="cfg-auth-password" placeholder="Dejar vacío para no cambiar">
-      </div>
-      <div class="campo">
-        <label>Duración de Sesión (horas)</label>
-        <input type="number" id="cfg-auth-duracion" min="1" max="720">
-      </div>
+    <div class="sec-body" id="s-auth">
+      <div class="campo"><label>Usuario Admin</label><input type="text" id="c-auth-usuario"></div>
+      <div class="campo"><label>Nueva Contraseña</label><input type="password" id="c-auth-password" placeholder="Dejar vacío para no cambiar"></div>
+      <div class="campo"><label>Duración de Sesión (horas)</label><input type="number" id="c-auth-duracion" min="1" max="720"></div>
     </div>
   </div>
 
-  <!-- ── RED ── -->
+  <!-- RED / MQTT -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-wifi"></i> Red y MQTT
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-red">
-      <div class="campo">
-        <label>MQTT Broker (IP o hostname)</label>
-        <input type="text" id="cfg-red-mqtt_broker">
-      </div>
-      <div class="campo">
-        <label>MQTT Puerto</label>
-        <input type="number" id="cfg-red-mqtt_puerto" min="1" max="65535">
-      </div>
-      <div class="campo">
-        <label>MQTT Usuario (opcional)</label>
-        <input type="text" id="cfg-red-mqtt_usuario">
-      </div>
-      <div class="campo">
-        <label>MQTT Contraseña (opcional)</label>
-        <input type="password" id="cfg-red-mqtt_password">
-      </div>
-      <div class="campo">
-        <label>API Host</label>
-        <input type="text" id="cfg-red-api_host">
-      </div>
-      <div class="campo">
-        <label>API Puerto</label>
-        <input type="number" id="cfg-red-api_puerto" min="1024" max="65535">
-      </div>
+    <div class="sec-body" id="s-red">
+      <div class="campo"><label>MQTT Broker (IP)</label><input type="text" id="c-red-mqtt_broker"></div>
+      <div class="campo"><label>MQTT Puerto</label><input type="number" id="c-red-mqtt_puerto" min="1" max="65535"></div>
+      <div class="campo"><label>MQTT Usuario</label><input type="text" id="c-red-mqtt_usuario" placeholder="Opcional"></div>
+      <div class="campo"><label>MQTT Contraseña</label><input type="password" id="c-red-mqtt_password" placeholder="Opcional"></div>
+      <div class="campo"><label>API Host</label><input type="text" id="c-red-api_host"></div>
+      <div class="campo"><label>API Puerto</label><input type="number" id="c-red-api_puerto" min="1024" max="65535"></div>
     </div>
   </div>
 
-  <!-- ── MÁQUINAS ── -->
+  <!-- MÁQUINAS -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-cpu"></i> Máquinas
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body full" id="sec-maquinas">
-      <div class="maquinas-lista" id="maquinasList"></div>
-      <button class="btn-agregar" onclick="agregarMaquina()">
+    <div class="sec-body full" id="s-maquinas">
+      <div class="maq-lista" id="maqLista"></div>
+      <button class="btn-add" onclick="addMaq()">
         <i class="bi bi-plus-circle"></i> Agregar Máquina
       </button>
     </div>
   </div>
 
-  <!-- ── UMBRALES ── -->
+  <!-- UMBRALES -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-speedometer2"></i> Umbrales de Corriente (Amperios)
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-umbrales">
-      <div class="campo">
-        <label>Apagada — por debajo de (A)</label>
-        <input type="number" id="cfg-umbrales-apagada" step="0.1" min="0">
-      </div>
-      <div class="campo">
-        <label>Encendida — por debajo de (A)</label>
-        <input type="number" id="cfg-umbrales-encendida" step="0.1" min="0">
-      </div>
-      <div class="campo">
-        <label>Bordando — por debajo de (A)</label>
-        <input type="number" id="cfg-umbrales-bordando" step="0.1" min="0">
-      </div>
-      <div class="campo">
-        <label>Sobrecarga — desde (A)</label>
-        <input type="number" id="cfg-umbrales-sobrecarga" step="0.1" min="0">
-      </div>
+    <div class="sec-body" id="s-umbrales">
+      <div class="campo"><label>Apagada — menor a (A)</label><input type="number" id="c-umbrales-apagada" step=".1" min="0"></div>
+      <div class="campo"><label>Encendida — menor a (A)</label><input type="number" id="c-umbrales-encendida" step=".1" min="0"></div>
+      <div class="campo"><label>Bordando — menor a (A)</label><input type="number" id="c-umbrales-bordando" step=".1" min="0"></div>
+      <div class="campo"><label>Sobrecarga — desde (A)</label><input type="number" id="c-umbrales-sobrecarga" step=".1" min="0"></div>
     </div>
   </div>
 
-  <!-- ── MEDICIÓN ── -->
+  <!-- MEDICIÓN -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-clock-history"></i> Medición
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-medicion">
-      <div class="campo">
-        <label>Intervalo de Publicación (seg)</label>
-        <input type="number" id="cfg-medicion-intervalo_segundos" min="1" max="60">
-      </div>
-      <div class="campo">
-        <label>Muestras para RMS</label>
-        <input type="number" id="cfg-medicion-n_muestras_rms" min="10" max="500">
-      </div>
-      <div class="campo">
-        <label>Historial a mostrar (min)</label>
-        <input type="number" id="cfg-medicion-historial_minutos" min="5" max="1440">
-      </div>
+    <div class="sec-body" id="s-medicion">
+      <div class="campo"><label>Intervalo (seg)</label><input type="number" id="c-medicion-intervalo_segundos" min="1" max="60"></div>
+      <div class="campo"><label>Muestras RMS</label><input type="number" id="c-medicion-n_muestras_rms" min="10" max="500"></div>
+      <div class="campo"><label>Historial (min)</label><input type="number" id="c-medicion-historial_minutos" min="5" max="1440"></div>
     </div>
   </div>
 
-  <!-- ── DETECCIÓN DE EVENTOS ── -->
+  <!-- DETECCIÓN -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-scissors"></i> Detección de Rotura de Hilo
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-deteccion">
-      <div class="campo">
-        <label>Caída mínima para rotura (A)</label>
-        <input type="number" id="cfg-deteccion-rotura_hilo_caida_minima" step="0.5" min="0.5">
-      </div>
-      <div class="campo">
-        <label>Ventana de detección (seg)</label>
-        <input type="number" id="cfg-deteccion-rotura_hilo_ventana_segundos" min="1" max="30">
-      </div>
+    <div class="sec-body" id="s-deteccion">
+      <div class="campo"><label>Caída mínima (A)</label><input type="number" id="c-det-rotura_hilo_caida_minima" step=".5" min=".5"></div>
+      <div class="campo"><label>Ventana de detección (seg)</label><input type="number" id="c-det-rotura_hilo_ventana_segundos" min="1" max="30"></div>
     </div>
   </div>
 
-  <!-- ── ALERTAS ── -->
+  <!-- ALERTAS -->
   <div class="seccion">
-    <div class="seccion-header" onclick="toggleSeccion(this)">
+    <div class="sec-hdr" onclick="toggle(this)">
       <i class="bi bi-telegram"></i> Alertas Telegram
-      <i class="bi bi-chevron-down toggle"></i>
+      <i class="bi bi-chevron-down ti"></i>
     </div>
-    <div class="seccion-body" id="sec-alertas">
-      <div class="campo span2">
-        <label>Bot Token</label>
-        <input type="text" id="cfg-alertas-telegram_token" placeholder="1234567890:AAAA...">
+    <div class="sec-body" id="s-alertas">
+      <div class="campo span2"><label>Bot Token</label><input type="text" id="c-alertas-telegram_token" placeholder="1234567890:AAA..."></div>
+      <div class="campo span2"><label>Chat ID</label><input type="text" id="c-alertas-telegram_chat_id" placeholder="-100123456789"></div>
+      <div class="toggle-row">
+        <label for="sw-rotura">Alertar rotura de hilo</label>
+        <label class="sw"><input type="checkbox" id="sw-rotura"><span class="sw-slider"></span></label>
       </div>
-      <div class="campo span2">
-        <label>Chat ID</label>
-        <input type="text" id="cfg-alertas-telegram_chat_id" placeholder="-100123456789">
+      <div class="toggle-row">
+        <label for="sw-sobrecarga">Alertar sobrecarga</label>
+        <label class="sw"><input type="checkbox" id="sw-sobrecarga"><span class="sw-slider"></span></label>
       </div>
-      <div class="campo-toggle">
-        <label>Alertar rotura de hilo</label>
-        <label class="switch">
-          <input type="checkbox" id="cfg-alertas-alertar_rotura_hilo">
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-      <div class="campo-toggle">
-        <label>Alertar sobrecarga</label>
-        <label class="switch">
-          <input type="checkbox" id="cfg-alertas-alertar_sobrecarga">
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-      <div class="campo-toggle">
-        <label>Alertar desconexión</label>
-        <label class="switch">
-          <input type="checkbox" id="cfg-alertas-alertar_desconexion">
-          <span class="switch-slider"></span>
-        </label>
+      <div class="toggle-row">
+        <label for="sw-desconexion">Alertar desconexión</label>
+        <label class="sw"><input type="checkbox" id="sw-desconexion"><span class="sw-slider"></span></label>
       </div>
     </div>
   </div>
 
-  <!-- Espacio para barra sticky -->
-  <div style="height:4rem"></div>
-
-  <!-- ── BARRA DE ACCIONES STICKY ── -->
-  <div class="acciones">
-    <button class="btn-guardar" id="btnGuardar" onclick="guardarConfig()">
-      <div class="spinner" id="spinner"></div>
-      <i class="bi bi-floppy" id="iconGuardar"></i>
-      Guardar Configuración
-    </button>
-    <a href="/dashboard" class="btn-cancelar">Cancelar</a>
-    <span id="statusMsg" style="font-size:.8rem;color:var(--muted);margin-left:auto"></span>
-  </div>
+  <div style="height:2rem"></div>
 </div>
 
-<!-- Toast -->
+<!-- BARRA STICKY -->
+<div class="acciones">
+  <button class="btn-guardar" id="btnGuardar" onclick="guardar()">
+    <div class="spinner" id="spin"></div>
+    <i class="bi bi-floppy" id="icoGuardar"></i>
+    Guardar
+  </button>
+  <a href="/dashboard" class="btn-cancel">Cancelar</a>
+  <span class="status-txt" id="statusTxt"></span>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  ESTADO
-// ════════════════════════════════════════════════════════
-let configOriginal = {};
-let proximoIdMaquina = 10;
+// ══════════════════════════════════════════════════════
+let cfgOrig = {};
+let nextId  = 10;
 
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  UTILIDADES
-// ════════════════════════════════════════════════════════
-function mostrarToast(msg, tipo = 'ok') {
-  const t = document.getElementById('toast');
-  t.innerHTML = `<i class="bi bi-${tipo === 'ok' ? 'check-circle' : 'exclamation-triangle'}"></i> ${msg}`;
-  t.className = `toast ${tipo} visible`;
-  setTimeout(() => t.classList.remove('visible'), 3500);
+// ══════════════════════════════════════════════════════
+function toggle(hdr) {
+  hdr.classList.toggle('cerrado');
+  hdr.nextElementSibling.classList.toggle('oculto');
 }
 
-function toggleSeccion(header) {
-  header.classList.toggle('collapsed');
-  const body = header.nextElementSibling;
-  body.classList.toggle('hidden');
+function toast(msg, tipo='ok') {
+  const el = document.getElementById('toast');
+  el.innerHTML = `<i class="bi bi-${tipo==='ok'?'check-circle':'exclamation-triangle'}"></i> ${msg}`;
+  el.className = `toast ${tipo} show`;
+  setTimeout(()=>el.classList.remove('show'), 3500);
 }
 
-function val(id)     { return document.getElementById(id)?.value ?? ''; }
-function numVal(id)  { return parseFloat(document.getElementById(id)?.value ?? 0); }
-function chkVal(id)  { return document.getElementById(id)?.checked ?? false; }
-function setVal(id, v) { const el = document.getElementById(id); if (el) el.value = v ?? ''; }
-function setChk(id, v) { const el = document.getElementById(id); if (el) el.checked = !!v; }
+const gv  = id => document.getElementById(id)?.value ?? '';
+const gn  = id => parseFloat(document.getElementById(id)?.value ?? 0);
+const gi  = id => parseInt(document.getElementById(id)?.value ?? 0) || 0;
+const gc  = id => document.getElementById(id)?.checked ?? false;
+const sv  = (id,v) => { const el=document.getElementById(id); if(el) el.value=v??''; };
+const sc  = (id,v) => { const el=document.getElementById(id); if(el) el.checked=!!v; };
 
-// ════════════════════════════════════════════════════════
-//  CARGAR CONFIGURACIÓN
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  CARGAR CONFIG
+// ══════════════════════════════════════════════════════
 async function cargarConfig() {
-  try {
-    const resp = await fetch('/api/config');
-    if (resp.status === 401) { location.href = '/login'; return; }
-    const cfg = await resp.json();
-    configOriginal = JSON.parse(JSON.stringify(cfg));
-    rellenarFormulario(cfg);
-  } catch (err) {
-    mostrarToast('Error cargando configuración: ' + err.message, 'error');
-  }
+  const resp = await fetch('/api/config');
+  if (resp.status===401) { location.href='/login'; return; }
+  const cfg = await resp.json();
+  cfgOrig = JSON.parse(JSON.stringify(cfg));
+  poblarFormulario(cfg);
 }
 
-function rellenarFormulario(cfg) {
-  // Sistema
-  setVal('cfg-sistema-nombre',       cfg.sistema?.nombre);
-  setVal('cfg-sistema-version',      cfg.sistema?.version);
-  setVal('cfg-sistema-descripcion',  cfg.sistema?.descripcion);
+function poblarFormulario(cfg) {
+  sv('c-sistema-nombre',       cfg.sistema?.nombre);
+  sv('c-sistema-version',      cfg.sistema?.version);
+  sv('c-sistema-descripcion',  cfg.sistema?.descripcion);
 
-  // Auth (nunca mostrar la contraseña real)
-  setVal('cfg-auth-usuario',   cfg.auth?.usuario);
-  setVal('cfg-auth-duracion',  cfg.auth?.duracion_sesion_horas);
+  sv('c-auth-usuario',   cfg.auth?.usuario);
+  sv('c-auth-duracion',  cfg.auth?.duracion_sesion_horas);
 
-  // Red
-  setVal('cfg-red-mqtt_broker',  cfg.red?.mqtt_broker);
-  setVal('cfg-red-mqtt_puerto',  cfg.red?.mqtt_puerto);
-  setVal('cfg-red-mqtt_usuario', cfg.red?.mqtt_usuario);
-  setVal('cfg-red-api_host',     cfg.red?.api_host);
-  setVal('cfg-red-api_puerto',   cfg.red?.api_puerto);
+  sv('c-red-mqtt_broker',  cfg.red?.mqtt_broker);
+  sv('c-red-mqtt_puerto',  cfg.red?.mqtt_puerto);
+  sv('c-red-mqtt_usuario', cfg.red?.mqtt_usuario);
+  sv('c-red-api_host',     cfg.red?.api_host);
+  sv('c-red-api_puerto',   cfg.red?.api_puerto);
 
-  // Máquinas
-  const lista = document.getElementById('maquinasList');
+  const lista = document.getElementById('maqLista');
   lista.innerHTML = '';
-  const maquinas = cfg.maquinas || [];
-  maquinas.forEach(m => agregarFilaMaquina(m));
-  if (maquinas.length) {
-    proximoIdMaquina = Math.max(...maquinas.map(m => m.id)) + 1;
-  }
+  (cfg.maquinas||[]).forEach(m => addMaqFila(m));
+  if (cfg.maquinas?.length) nextId = Math.max(...cfg.maquinas.map(m=>m.id))+1;
 
-  // Umbrales
-  setVal('cfg-umbrales-apagada',    cfg.umbrales?.apagada);
-  setVal('cfg-umbrales-encendida',  cfg.umbrales?.encendida);
-  setVal('cfg-umbrales-bordando',   cfg.umbrales?.bordando);
-  setVal('cfg-umbrales-sobrecarga', cfg.umbrales?.sobrecarga);
+  sv('c-umbrales-apagada',    cfg.umbrales?.apagada);
+  sv('c-umbrales-encendida',  cfg.umbrales?.encendida);
+  sv('c-umbrales-bordando',   cfg.umbrales?.bordando);
+  sv('c-umbrales-sobrecarga', cfg.umbrales?.sobrecarga);
 
-  // Medición
-  setVal('cfg-medicion-intervalo_segundos', cfg.medicion?.intervalo_segundos);
-  setVal('cfg-medicion-n_muestras_rms',     cfg.medicion?.n_muestras_rms);
-  setVal('cfg-medicion-historial_minutos',  cfg.medicion?.historial_minutos);
+  sv('c-medicion-intervalo_segundos', cfg.medicion?.intervalo_segundos);
+  sv('c-medicion-n_muestras_rms',     cfg.medicion?.n_muestras_rms);
+  sv('c-medicion-historial_minutos',  cfg.medicion?.historial_minutos);
 
-  // Detección
-  setVal('cfg-deteccion-rotura_hilo_caida_minima',       cfg.deteccion_eventos?.rotura_hilo_caida_minima);
-  setVal('cfg-deteccion-rotura_hilo_ventana_segundos',   cfg.deteccion_eventos?.rotura_hilo_ventana_segundos);
+  sv('c-det-rotura_hilo_caida_minima',      cfg.deteccion_eventos?.rotura_hilo_caida_minima);
+  sv('c-det-rotura_hilo_ventana_segundos',  cfg.deteccion_eventos?.rotura_hilo_ventana_segundos);
 
-  // Alertas
-  setVal('cfg-alertas-telegram_token',   cfg.alertas?.telegram_token);
-  setVal('cfg-alertas-telegram_chat_id', cfg.alertas?.telegram_chat_id);
-  setChk('cfg-alertas-alertar_rotura_hilo',  cfg.alertas?.alertar_rotura_hilo);
-  setChk('cfg-alertas-alertar_sobrecarga',   cfg.alertas?.alertar_sobrecarga);
-  setChk('cfg-alertas-alertar_desconexion',  cfg.alertas?.alertar_desconexion);
+  sv('c-alertas-telegram_token',   cfg.alertas?.telegram_token);
+  sv('c-alertas-telegram_chat_id', cfg.alertas?.telegram_chat_id);
+  sc('sw-rotura',      cfg.alertas?.alertar_rotura_hilo);
+  sc('sw-sobrecarga',  cfg.alertas?.alertar_sobrecarga);
+  sc('sw-desconexion', cfg.alertas?.alertar_desconexion);
 }
 
-// ════════════════════════════════════════════════════════
-//  MÁQUINAS — FILAS DINÁMICAS
-// ════════════════════════════════════════════════════════
-function agregarFilaMaquina(m = null) {
-  const id = m ? m.id : proximoIdMaquina++;
-  const lista = document.getElementById('maquinasList');
-  const item  = document.createElement('div');
-  item.className   = 'maquina-item';
-  item.dataset.mid = id;
-  item.innerHTML = `
+// ══════════════════════════════════════════════════════
+//  MÁQUINAS DINÁMICAS
+// ══════════════════════════════════════════════════════
+function addMaq() { addMaqFila(null); }
+
+function addMaqFila(m) {
+  const id   = m ? m.id : nextId++;
+  const fila = document.createElement('div');
+  fila.className = 'maq-fila';
+  fila.dataset.mid = id;
+  fila.innerHTML = `
     <div class="campo">
       <label>ID</label>
-      <input type="number" class="m-id" value="${id}" min="1" readonly style="opacity:.6">
+      <input type="number" class="m-id" value="${id}" min="1" readonly>
     </div>
     <div class="campo">
       <label>Nombre</label>
-      <input type="text" class="m-nombre" value="${m?.nombre ?? ''}" placeholder="Bordadora 1">
+      <input type="text" class="m-nombre" value="${m?.nombre??''}" placeholder="Bordadora 1">
     </div>
     <div class="campo">
       <label>Descripción</label>
-      <input type="text" class="m-desc" value="${m?.descripcion ?? ''}" placeholder="Línea A">
+      <input type="text" class="m-desc" value="${m?.descripcion??''}" placeholder="Línea A">
     </div>
     <div class="campo">
       <label>Factor Cal.</label>
-      <input type="number" class="m-factor" value="${m?.factor_calibracion ?? 30.0}" step="0.1" min="0.1">
+      <input type="number" class="m-fc" value="${m?.factor_calibracion??60.6}" step=".1" min=".1">
     </div>
-    <button class="btn-eliminar" onclick="eliminarMaquina(this)" title="Eliminar máquina">
+    <button class="btn-del" onclick="delMaq(this)" title="Eliminar">
       <i class="bi bi-trash3"></i>
-    </button>
-  `;
-  lista.appendChild(item);
+    </button>`;
+  document.getElementById('maqLista').appendChild(fila);
 }
 
-function agregarMaquina() {
-  agregarFilaMaquina(null);
-}
-
-function eliminarMaquina(btn) {
-  const item = btn.closest('.maquina-item');
-  if (document.querySelectorAll('.maquina-item').length <= 1) {
-    mostrarToast('Debe existir al menos una máquina', 'error');
-    return;
-  }
-  item.style.opacity = '0';
-  item.style.transform = 'scaleY(0)';
-  item.style.transition = 'opacity .2s, transform .2s';
-  setTimeout(() => item.remove(), 200);
+function delMaq(btn) {
+  const lista = document.querySelectorAll('.maq-fila');
+  if (lista.length <= 1) { toast('Debe existir al menos una máquina', 'error'); return; }
+  const fila = btn.closest('.maq-fila');
+  fila.style.transition = 'opacity .2s, transform .2s';
+  fila.style.opacity = '0'; fila.style.transform = 'scaleY(0)';
+  setTimeout(()=>fila.remove(), 200);
 }
 
 function leerMaquinas() {
-  const items = document.querySelectorAll('.maquina-item');
-  const maquinas = [];
-  for (const item of items) {
-    maquinas.push({
-      id:                 parseInt(item.querySelector('.m-id').value),
-      nombre:             item.querySelector('.m-nombre').value.trim(),
-      descripcion:        item.querySelector('.m-desc').value.trim(),
-      activa:             true,
-      factor_calibracion: parseFloat(item.querySelector('.m-factor').value),
-    });
-  }
-  return maquinas;
+  return [...document.querySelectorAll('.maq-fila')].map(f => ({
+    id:                 parseInt(f.querySelector('.m-id').value),
+    nombre:             f.querySelector('.m-nombre').value.trim(),
+    descripcion:        f.querySelector('.m-desc').value.trim(),
+    activa:             true,
+    factor_calibracion: parseFloat(f.querySelector('.m-fc').value),
+  }));
 }
 
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  CONSTRUIR Y GUARDAR
-// ════════════════════════════════════════════════════════
-function construirConfig() {
-  const nuevaPass = val('cfg-auth-password');
-  const cfg = {
+// ══════════════════════════════════════════════════════
+function buildCfg() {
+  const pass = gv('c-auth-password');
+  return {
     sistema: {
-      nombre:      val('cfg-sistema-nombre'),
-      version:     val('cfg-sistema-version'),
-      descripcion: val('cfg-sistema-descripcion'),
+      nombre:      gv('c-sistema-nombre'),
+      version:     gv('c-sistema-version'),
+      descripcion: gv('c-sistema-descripcion'),
     },
     auth: {
-      usuario:              val('cfg-auth-usuario'),
-      password:             nuevaPass || configOriginal.auth?.password,
-      duracion_sesion_horas: parseInt(val('cfg-auth-duracion')) || 8,
+      usuario:              gv('c-auth-usuario'),
+      password:             pass || cfgOrig.auth?.password,
+      duracion_sesion_horas: gi('c-auth-duracion') || 8,
     },
     red: {
-      mqtt_broker:  val('cfg-red-mqtt_broker'),
-      mqtt_puerto:  parseInt(val('cfg-red-mqtt_puerto')) || 1883,
-      mqtt_usuario: val('cfg-red-mqtt_usuario'),
-      mqtt_password: val('cfg-red-mqtt_password') || configOriginal.red?.mqtt_password || '',
-      api_host:     val('cfg-red-api_host'),
-      api_puerto:   parseInt(val('cfg-red-api_puerto')) || 8000,
+      mqtt_broker:  gv('c-red-mqtt_broker'),
+      mqtt_puerto:  gi('c-red-mqtt_puerto') || 1883,
+      mqtt_usuario: gv('c-red-mqtt_usuario'),
+      mqtt_password: gv('c-red-mqtt_password') || cfgOrig.red?.mqtt_password || '',
+      api_host:     gv('c-red-api_host'),
+      api_puerto:   gi('c-red-api_puerto') || 8000,
     },
-    base_datos: { ruta: configOriginal.base_datos?.ruta || 'senrg7.db' },
+    base_datos: { ruta: cfgOrig.base_datos?.ruta || 'senrg7.db' },
     maquinas: leerMaquinas(),
     umbrales: {
-      apagada:    numVal('cfg-umbrales-apagada'),
-      encendida:  numVal('cfg-umbrales-encendida'),
-      bordando:   numVal('cfg-umbrales-bordando'),
-      sobrecarga: numVal('cfg-umbrales-sobrecarga'),
+      apagada:    gn('c-umbrales-apagada'),
+      encendida:  gn('c-umbrales-encendida'),
+      bordando:   gn('c-umbrales-bordando'),
+      sobrecarga: gn('c-umbrales-sobrecarga'),
     },
     medicion: {
-      intervalo_segundos: parseInt(val('cfg-medicion-intervalo_segundos')) || 1,
-      n_muestras_rms:     parseInt(val('cfg-medicion-n_muestras_rms'))     || 100,
-      historial_minutos:  parseInt(val('cfg-medicion-historial_minutos'))  || 60,
+      intervalo_segundos: gi('c-medicion-intervalo_segundos') || 1,
+      n_muestras_rms:     gi('c-medicion-n_muestras_rms')     || 100,
+      historial_minutos:  gi('c-medicion-historial_minutos')  || 60,
     },
     deteccion_eventos: {
-      rotura_hilo_caida_minima:      numVal('cfg-deteccion-rotura_hilo_caida_minima'),
-      rotura_hilo_ventana_segundos:  parseInt(val('cfg-deteccion-rotura_hilo_ventana_segundos')) || 3,
+      rotura_hilo_caida_minima:     gn('c-det-rotura_hilo_caida_minima'),
+      rotura_hilo_ventana_segundos: gi('c-det-rotura_hilo_ventana_segundos') || 3,
     },
     alertas: {
-      telegram_token:       val('cfg-alertas-telegram_token'),
-      telegram_chat_id:     val('cfg-alertas-telegram_chat_id'),
-      alertar_rotura_hilo:  chkVal('cfg-alertas-alertar_rotura_hilo'),
-      alertar_sobrecarga:   chkVal('cfg-alertas-alertar_sobrecarga'),
-      alertar_desconexion:  chkVal('cfg-alertas-alertar_desconexion'),
+      telegram_token:      gv('c-alertas-telegram_token'),
+      telegram_chat_id:    gv('c-alertas-telegram_chat_id'),
+      alertar_rotura_hilo: gc('sw-rotura'),
+      alertar_sobrecarga:  gc('sw-sobrecarga'),
+      alertar_desconexion: gc('sw-desconexion'),
     },
   };
-  return cfg;
 }
 
-async function guardarConfig() {
-  const btn     = document.getElementById('btnGuardar');
-  const spinner = document.getElementById('spinner');
-  const icon    = document.getElementById('iconGuardar');
-  const status  = document.getElementById('statusMsg');
+async function guardar() {
+  const btn  = document.getElementById('btnGuardar');
+  const spin = document.getElementById('spin');
+  const ico  = document.getElementById('icoGuardar');
+  const stxt = document.getElementById('statusTxt');
 
-  // Validaciones previas
+  // Validar máquinas
   const maquinas = leerMaquinas();
-  if (maquinas.some(m => !m.nombre)) {
-    mostrarToast('Todas las máquinas deben tener nombre', 'error');
-    return;
-  }
-  const ids = maquinas.map(m => m.id);
-  if (new Set(ids).size !== ids.length) {
-    mostrarToast('Los IDs de máquinas no pueden repetirse', 'error');
-    return;
-  }
+  if (maquinas.some(m=>!m.nombre.trim())) { toast('Todas las máquinas necesitan nombre', 'error'); return; }
+  const ids = maquinas.map(m=>m.id);
+  if (new Set(ids).size !== ids.length)   { toast('Los IDs de máquinas no pueden repetirse', 'error'); return; }
 
   btn.disabled = true;
-  spinner.classList.add('visible');
-  icon.style.display = 'none';
-  status.textContent = 'Guardando...';
+  spin.classList.add('v'); ico.style.display='none';
+  stxt.textContent = 'Guardando...';
 
   try {
-    const cfg  = construirConfig();
     const resp = await fetch('/api/config', {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(cfg),
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(buildCfg()),
     });
-
-    if (resp.status === 401) { location.href = '/login'; return; }
-
+    if (resp.status===401) { location.href='/login'; return; }
     const data = await resp.json();
+
     if (resp.ok && data.ok) {
-      configOriginal = JSON.parse(JSON.stringify(cfg));
-      mostrarToast('Configuración guardada correctamente');
-      status.textContent = `Guardado ${new Date().toLocaleTimeString('es-BO')}`;
-      // Limpiar campo de nueva contraseña
-      setVal('cfg-auth-password', '');
+      cfgOrig = buildCfg();
+      toast('Configuración guardada');
+      stxt.textContent = `Guardado ${new Date().toLocaleTimeString('es-BO')}`;
+      sv('c-auth-password','');
     } else {
-      mostrarToast(data.detail || 'Error al guardar', 'error');
-      status.textContent = '';
+      toast(data.detail||'Error al guardar','error');
+      stxt.textContent = '';
     }
   } catch (err) {
-    mostrarToast('Error de red: ' + err.message, 'error');
-    status.textContent = '';
+    toast('Error de red: '+err.message,'error');
+    stxt.textContent = '';
   } finally {
     btn.disabled = false;
-    spinner.classList.remove('visible');
-    icon.style.display = '';
+    spin.classList.remove('v'); ico.style.display='';
   }
 }
 
-// ════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════
 cargarConfig();
 </script>
 </body>

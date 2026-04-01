@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SENRG7 — Iniciar Sesión</title>
+  <script src="/theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Variables de tema ── */
     :root {
-      --bg:        #0a0e1a;
-      --card:      #141a2e;
-      --border:    #1e2a45;
-      --accent:    #00c896;
-      --accent-hv: #00e6ad;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --danger:    #ef4444;
+      --bg:         #0f172a;
+      --bg2:        #1e293b;
+      --card:       #1e293b;
+      --brd:        #334155;
+      --accent:     #10b981;
+      --accent-hv:  #34d399;
+      --text:       #f1f5f9;
+      --text2:      #cbd5e1;
+      --muted:      #64748b;
+      --danger:     #ef4444;
+      --shadow:     0 20px 60px rgba(0,0,0,.45);
+    }
+    [data-theme="light"] {
+      --bg:         #f1f5f9;
+      --bg2:        #e2e8f0;
+      --card:       #ffffff;
+      --brd:        #cbd5e1;
+      --accent:     #059669;
+      --accent-hv:  #047857;
+      --text:       #0f172a;
+      --text2:      #334155;
+      --muted:      #64748b;
+      --danger:     #dc2626;
+      --shadow:     0 20px 60px rgba(0,0,0,.12);
     }
 
     body {
@@ -27,222 +46,194 @@
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(0,200,150,.07) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(0,100,255,.05) 0%, transparent 60%);
+      transition: background .25s, color .25s;
     }
 
-    .contenedor {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    /* Logo / Marca */
-    .marca {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .marca-icono {
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, #00c896, #0066ff);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      box-shadow: 0 0 32px rgba(0,200,150,.3);
-    }
-    .marca-icono svg { width: 34px; height: 34px; fill: #fff; }
-    .marca h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: .12em;
-      background: linear-gradient(90deg, #00c896, #4fc3f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .marca p {
+    /* Botón de tema — esquina superior derecha */
+    .btn-tema {
+      position: fixed;
+      top: 1rem; right: 1rem;
+      background: var(--card);
+      border: 1px solid var(--brd);
+      border-radius: 8px;
       color: var(--muted);
-      font-size: .85rem;
-      margin-top: .3rem;
-      letter-spacing: .03em;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+      font-size: .95rem;
     }
+    .btn-tema:hover { color: var(--text); border-color: var(--accent); }
 
-    /* Tarjeta de login */
+    .contenedor { width: 100%; max-width: 400px; }
+
+    /* Marca */
+    .marca { text-align: center; margin-bottom: 2rem; }
+    .marca-icono {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .9rem;
+      box-shadow: 0 0 28px rgba(16,185,129,.35);
+    }
+    .marca-icono i { font-size: 1.7rem; color: #fff; }
+    .marca h1 {
+      font-size: 1.9rem; font-weight: 800; letter-spacing: .1em;
+      color: var(--text);
+    }
+    .marca p { color: var(--muted); font-size: .82rem; margin-top: .25rem; }
+
+    /* Tarjeta */
     .card {
       background: var(--card);
-      border: 1px solid var(--border);
+      border: 1px solid var(--brd);
       border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      transition: background .25s, border-color .25s;
     }
 
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
+    .form-group { margin-bottom: 1.1rem; }
     label {
       display: block;
-      font-size: .8rem;
-      font-weight: 600;
+      font-size: .72rem; font-weight: 700;
       color: var(--muted);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-bottom: .5rem;
+      letter-spacing: .07em; text-transform: uppercase;
+      margin-bottom: .45rem;
+    }
+
+    .input-wrap { position: relative; }
+    .input-wrap .input-icon {
+      position: absolute; left: .85rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted); font-size: .95rem;
+      pointer-events: none;
     }
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--brd);
+      border-radius: 9px;
+      padding: .7rem 1rem .7rem 2.5rem;
       color: var(--text);
-      font-size: .95rem;
-      transition: border-color .2s, box-shadow .2s;
+      font-size: .93rem;
       outline: none;
+      transition: border-color .2s, box-shadow .2s, background .25s;
     }
     input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0,200,150,.15);
+      box-shadow: 0 0 0 3px rgba(16,185,129,.18);
     }
 
     .btn-login {
-      width: 100%;
-      padding: .85rem;
-      background: linear-gradient(135deg, #00c896, #0088cc);
-      border: none;
-      border-radius: 8px;
+      width: 100%; padding: .8rem;
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      border: none; border-radius: 9px;
       color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: .05em;
+      font-size: .95rem; font-weight: 700; letter-spacing: .04em;
       cursor: pointer;
       transition: opacity .2s, transform .1s;
-      margin-top: .5rem;
+      margin-top: .4rem;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
     }
-    .btn-login:hover  { opacity: .9; }
+    .btn-login:hover  { opacity: .88; }
     .btn-login:active { transform: scale(.98); }
 
-    /* Mensaje de error */
     .error-msg {
       display: none;
-      background: rgba(239,68,68,.12);
+      background: rgba(239,68,68,.1);
       border: 1px solid rgba(239,68,68,.3);
       border-radius: 8px;
-      padding: .75rem 1rem;
+      padding: .7rem 1rem;
       color: #fca5a5;
-      font-size: .88rem;
-      margin-bottom: 1.25rem;
+      font-size: .85rem;
+      margin-bottom: 1.1rem;
       text-align: center;
+      gap: .4rem;
+      align-items: center;
     }
-    .error-msg.visible { display: block; }
+    .error-msg.visible { display: flex; }
 
-    /* Footer */
     .footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: .75rem;
-      color: var(--muted);
+      text-align: center; margin-top: 1.4rem;
+      font-size: .72rem; color: var(--muted);
     }
   </style>
 </head>
 <body>
+  <button class="btn-tema" data-btn-tema title="Cambiar tema">
+    <i class="bi bi-sun"></i>
+  </button>
+
   <div class="contenedor">
-    <!-- Marca -->
     <div class="marca">
-      <div class="marca-icono">
-        <!-- Ícono de rayo eléctrico -->
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9z"/>
-        </svg>
-      </div>
+      <div class="marca-icono"><i class="bi bi-lightning-charge-fill"></i></div>
       <h1>SENRG7</h1>
       <p>Sistema de Monitoreo de Energía Industrial</p>
     </div>
 
-    <!-- Formulario -->
     <div class="card">
       <div id="errorMsg" class="error-msg">
+        <i class="bi bi-exclamation-circle"></i>
         Usuario o contraseña incorrectos
       </div>
 
       <form id="formLogin" method="POST" action="/login">
         <div class="form-group">
           <label for="username">Usuario</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            autocomplete="username"
-            placeholder="admin"
-            required
-            autofocus
-          >
+          <div class="input-wrap">
+            <i class="bi bi-person input-icon"></i>
+            <input type="text" id="username" name="username"
+              autocomplete="username" placeholder="admin" required autofocus>
+          </div>
         </div>
-
         <div class="form-group">
           <label for="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="••••••••••"
-            required
-          >
+          <div class="input-wrap">
+            <i class="bi bi-lock input-icon"></i>
+            <input type="password" id="password" name="password"
+              autocomplete="current-password" placeholder="••••••••••" required>
+          </div>
         </div>
-
-        <button type="submit" class="btn-login">INGRESAR</button>
+        <button type="submit" class="btn-login">
+          <i class="bi bi-box-arrow-in-right"></i> Ingresar
+        </button>
       </form>
     </div>
 
     <div class="footer">
-      ITSa — Informática Industrial &nbsp;|&nbsp; Cochabamba, Bolivia
+      ITSa — Informática Industrial &nbsp;·&nbsp; Cochabamba, Bolivia
     </div>
   </div>
 
   <script>
-    // Mostrar error si el servidor devolvió 401 o si hay parámetro ?error en la URL
-    (function () {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('error')) {
-        document.getElementById('errorMsg').classList.add('visible');
-      }
-    })();
-
-    // Interceptar envío para mostrar error en la misma página (respuesta 401 del servidor)
     document.getElementById('formLogin').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const form = e.target;
-      const data = new URLSearchParams(new FormData(form));
-
+      const data = new URLSearchParams(new FormData(e.target));
       try {
         const resp = await fetch('/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: data,
-          redirect: 'manual',   // no seguir redirecciones automáticamente
+          body: data, redirect: 'manual',
         });
-
         if (resp.status === 0 || resp.type === 'opaqueredirect') {
-          // Redirección exitosa → navegar al dashboard
           window.location.href = '/dashboard';
         } else if (resp.status === 303) {
           window.location.href = resp.headers.get('Location') || '/dashboard';
-        } else if (resp.status === 401) {
+        } else {
           document.getElementById('errorMsg').classList.add('visible');
           document.getElementById('password').value = '';
           document.getElementById('password').focus();
-        } else {
-          document.getElementById('errorMsg').classList.add('visible');
         }
-      } catch (err) {
-        console.error('Error de red:', err);
+      } catch {
         document.getElementById('errorMsg').classList.add('visible');
       }
     });
+    if (new URLSearchParams(location.search).has('error')) {
+      document.getElementById('errorMsg').classList.add('visible');
+    }
   </script>
 </body>
 </html>
