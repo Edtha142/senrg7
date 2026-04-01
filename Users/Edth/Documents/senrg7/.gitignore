@@ -1,0 +1,24 @@
+# Base de datos (datos en tiempo real, no versionar)
+*.db
+*.db-wal
+*.db-shm
+
+# Logs generados en ejecución
+*.log
+
+# Entornos virtuales Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos de Claude Code (configuración personal del agente)
+.claude/
+
+# Instalador generado
+installer/output/
+installer/python-embed/
+
+# Temporales de Windows
+Thumbs.db
+desktop.ini

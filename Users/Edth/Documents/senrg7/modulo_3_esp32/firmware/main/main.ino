@@ -36,7 +36,7 @@
 // ══════════════════════════════════════════════════════════
 
 // WiFi
-const char* WIFI_SSID       = "FLIALOAYZAI";
+const char* WIFI_SSID       = "FLIALOAYZA";
 const char* WIFI_PASSWORD   = "123asd123aaa";
 
 // MQTT — IP de la PC donde corre Mosquitto

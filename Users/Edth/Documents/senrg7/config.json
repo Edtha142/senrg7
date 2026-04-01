@@ -31,9 +31,9 @@
   ],
   "umbrales": {
     "apagada": 0.5,
-    "encendida": 2.0,
-    "bordando": 20.0,
-    "sobrecarga": 20.0
+    "encendida": 2,
+    "bordando": 20,
+    "sobrecarga": 20
   },
   "medicion": {
     "intervalo_segundos": 1,
@@ -41,7 +41,7 @@
     "historial_minutos": 60
   },
   "deteccion_eventos": {
-    "rotura_hilo_caida_minima": 3.0,
+    "rotura_hilo_caida_minima": 3,
     "rotura_hilo_ventana_segundos": 3
   },
   "alertas": {

@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)",
+      "Bash(uvicorn:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(mosquitto_pub:*)",
+      "Bash(mosquitto_sub:*)",
+      "Bash(mosquitto:*)",
+      "Bash(sqlite3:*)",
+      "Bash(iscc:*)",
+      "Bash(pyinstaller:*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Glob(*)",
+      "LS(*)"
+    ],
+    "deny": []
+  },
+  "env": {
+    "PROYECTO":     "SENRG7",
+    "VERSION":      "1.0.0",
+    "DB_PATH":      "senrg7.db",
+    "CONFIG_PATH":  "config.json",
+    "MQTT_BROKER":  "localhost",
+    "MQTT_PORT":    "1883",
+    "API_HOST":     "0.0.0.0",
+    "API_PORT":     "8000",
+    "LOG_LEVEL":    "INFO"
+  }
+}
