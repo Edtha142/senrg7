@@ -1,0 +1,78 @@
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: autotrader-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: autotrader
+      POSTGRES_USER: autotrader
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-autotrader2024}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - autotrader-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autotrader"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autotrader-backend
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+asyncpg://autotrader:${DB_PASSWORD:-autotrader2024}@postgres:5432/autotrader
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-secret-key-in-production}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: 43200
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${BACKEND_PORT:-8003}:8000"
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - autotrader-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: autotrader-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8003}
+    depends_on:
+      - backend
+    networks:
+      - autotrader-network
+
+networks:
+  autotrader-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

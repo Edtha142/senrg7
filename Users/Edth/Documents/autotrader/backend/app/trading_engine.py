@@ -706,7 +706,9 @@ class TradingEngine:
         sl_side = "SELL" if pos.direction.value == "LONG" else "BUY"
         qty = Decimal(str(pos.current_quantity))
         entry = Decimal(str(pos.entry_price))
-        original_sl = entry * (1 - sl_pct) if pos.direction.value == "LONG" else entry * (1 + sl_pct)
+        # If already trailing, use highest_price as base — not entry
+        base = Decimal(str(pos.highest_price)) if pos.highest_price and pos.current_phase == "TRAILING_MANUAL" else entry
+        original_sl = base * (1 - sl_pct) if pos.direction.value == "LONG" else base * (1 + sl_pct)
 
         # Check current mark price — if already past SL, place emergency SL near current price
         try:
@@ -735,12 +737,14 @@ class TradingEngine:
             )
             algo_id = str(sl_order.get("algoId", ""))
             pos.binance_stop_order_id = f"algo:{algo_id}"
-            pos.current_phase = "INITIAL"
+            # Keep TRAILING_MANUAL phase if it was already trailing
+            if pos.current_phase != "TRAILING_MANUAL":
+                pos.current_phase = "INITIAL"
             pos.stop_loss = sl_price
             await session.commit()
             logger.info(
                 f"SL repaired for {pos.symbol}: stop={sl_price:.4f} "
-                f"algoId={algo_id} (was missing)"
+                f"algoId={algo_id} phase={pos.current_phase} (was missing)"
             )
         except Exception as e:
             logger.error(f"Failed to repair SL for {pos.symbol}: {e}")
