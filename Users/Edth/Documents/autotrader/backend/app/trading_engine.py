@@ -300,18 +300,16 @@ class TradingEngine:
                         await self._activate_trailing_stop(session, position, mark_price)
 
                 elif position.current_phase == "TRAILING_MANUAL":
-                    # Manual trailing: if price made a new high, move the OCO SL up
+                    # Manual trailing: if price made a new high, move the SL up
                     if new_high:
                         config = await self._get_config()
                         callback_rate = Decimal(str(config.stop_loss_percent))
                         sl_side = "SELL" if position.direction == "LONG" else "BUY"
                         quantity = Decimal(str(position.current_quantity))
                         new_sl = current_highest * (1 - callback_rate / 100)
+                        old_order_id = position.binance_stop_order_id
 
-                        # Cancel old algo SL and place new one at higher level
-                        if position.binance_stop_order_id:
-                            await self._cancel_sl_order(symbol, position.binance_stop_order_id)
-
+                        # Place NEW SL first — only cancel old one after new is confirmed
                         try:
                             sl_order = await self.binance.place_algo_stop(
                                 symbol=symbol,
@@ -327,8 +325,11 @@ class TradingEngine:
                                 f"highest={current_highest} | new_SL={new_sl:.4f} | "
                                 f"algoId={algo_id}"
                             )
+                            # Cancel old SL only after new one is placed
+                            if old_order_id:
+                                await self._cancel_sl_order(symbol, old_order_id)
                         except BinanceAPIError as e:
-                            logger.error(f"Failed to update manual trailing SL for {symbol}: {e}")
+                            logger.error(f"Failed to update trailing SL for {symbol}: {e}")
 
                 await session.commit()
 
@@ -372,12 +373,9 @@ class TradingEngine:
             f"price={current_price} | first_SL={new_sl:.4f} | trail={callback_rate}%"
         )
 
-        # Cancel the initial fixed SL
-        if position.binance_stop_order_id:
-            await self._cancel_sl_order(symbol, position.binance_stop_order_id)
-            position.binance_stop_order_id = None
+        old_order_id = position.binance_stop_order_id
 
-        # Place new SL at current_price * (1 - callback%)
+        # Place new SL FIRST, then cancel old one — never leave position without SL
         try:
             sl_order = await self.binance.place_algo_stop(
                 symbol=symbol,
@@ -387,6 +385,9 @@ class TradingEngine:
             )
             position.binance_stop_order_id = f"algo:{sl_order.get('algoId', '')}"
             position.current_phase = "TRAILING_MANUAL"
+            # Cancel old SL only after new one confirmed
+            if old_order_id:
+                await self._cancel_sl_order(symbol, old_order_id)
             position.stop_loss = new_sl
             # Price stream stays subscribed — _on_price_update handles SL moves
             if commit:
