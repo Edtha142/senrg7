@@ -283,6 +283,16 @@ async def import_position(body: ImportPositionRequest, db: AsyncSession = Depend
         raise HTTPException(400, f"Already an open position for {symbol}")
 
     # Place SL on Binance first
+    # Binance requires minimum $20 notional — if SL price * qty < $20, raise SL to minimum viable price
+    MIN_NOTIONAL = Decimal("20")
+    if sl_price * qty < MIN_NOTIONAL:
+        min_viable_sl = (MIN_NOTIONAL / qty).quantize(Decimal("0.0001"))
+        logger.warning(
+            f"SL notional too small for {symbol} ({float(sl_price * qty):.2f} < 20) — "
+            f"raising SL to minimum viable price {min_viable_sl}"
+        )
+        sl_price = min_viable_sl
+
     sl_order_id = None
     try:
         sl_order = await engine.binance.place_algo_stop(
